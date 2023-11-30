@@ -12,13 +12,41 @@ import zim from "https://zimjs.org/cdn/015/zim";
 // See Docs under Frame for FIT, FILL, FULL, and TAG
 new Frame(FIT, 1024, 768, light, dark, ready);
 function ready() {
+    // let heart = 5;    
+    // const background = new Container(W,H);
+
+    // let spotA = new Container(150,200,200,200).center().outline();
+    // let spotB = new Container(150,200, 400, 400).center().outline();
+    // let spotC = new Container(150,200).center().outline();
+
+
+    let cat1 = new Rectangle(150,200,yellow).pos(50,100,LEFT, TOP);
+    let cat2 = new Rectangle(150,200,blue).pos(100,100,RIGHT, TOP);
+    let cat3 = new Rectangle(150,200,green).center()
+  
+
+
+    const basket = new Container(W,H).center();
+    // loop(10, ()=>{
+    //     new Circle(70,blue).pos(300,100,CENTER, BOTTOM).drag();
+    // })
+    loop(10, () => {
+        new Circle(70,blue).addTo(basket).pos(300,100,CENTER, BOTTOM).drag()
+          });
+          basket.loop((milk) => {
+            if (milk.hitTestCircleRect(cat1)) {
+              zog("!");
+            }
+          });
+
+
+    new Circle(70,red).pos(100,100,CENTER, BOTTOM).drag();
+    new Circle(70,green).pos(-100,100,CENTER, BOTTOM).drag();
+    new Circle(70,orange).pos(-300,100,CENTER, BOTTOM).drag();
+
+
+
     
-    // given F (Frame), S (Stage), W (width), H (height)
-    // put code here
-    
-    new Circle(100, blue)
-        .center()
-        .drag();
         
 } // end ready
 
