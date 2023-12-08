@@ -27,7 +27,14 @@ let score = new Scorer({
     width:60
 
 }).addTo(background).pos(50,50,RIGHT);
-// const timer = new Timer().addTo(background).pos(50,50);
+const timer = new Timer({
+    font:"BabyDoll.ttf",
+    backgroundColor:yellow,
+    borderColor: black,
+    borderWidth:3,
+    width:60
+
+}).addTo(background).pos(50,50);
    
 //CATS-----------------------------------------------------------------------------
 // let spotA = new Container(200, 200).pos(50, 150, LEFT, TOP).outline();
@@ -77,6 +84,7 @@ const tuxcat = new Pic("tuxcat.png").addTo(background).pos(50, 150, RIGHT, BOTTO
     // ITEMS TO CAT---------------------------------------------------------------------
     let milk;
     let food;
+    let toy;
     let brush;
 
 
@@ -119,11 +127,9 @@ function checkItem(item) {
             // Check if the cat has reached maximum satisfaction
             if (catInfo.satisfaction >= 3) {
                 animateCatOffScreen(catInfo.cat);
-            }
-
-            // Update overall score
-            score++;
+                score.score++;
             zog(`Score: ${score}`);
+            }
         } else {
             // If the cat is not accepting the item, snap it back to the start position
             item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
