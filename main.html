@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8" />
-<title>CAT CAFE DEMO</title>
+    <meta charset="utf-8" />
+    <title>CAT CAFE DEMO</title>
 
-<!-- zimjs.com - JavaScript Canvas Framework -->
-<script type=module>
+    <!-- zimjs.com - JavaScript Canvas Framework -->
+    <script type=module>
 
-// import zim from "https://zimjs.org/cdn/015/zim";
 import zim from "https://zimjs.com/cdn/015/zim_game";
 
-const assets = ["BabyDoll.ttf", "catdemo.png","catdemo2.png","catdemo3.png","milkdemo.png"];
+const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png"];
 const path = "assets/"
 
 // See Docs under Frame for FIT, FILL, FULL, and TAG
@@ -19,69 +19,136 @@ function ready() {
 
 //BACKGROUND ELEMENTS-------------------------------------------------------------
 const background = new Container(W,H).center();
-const points = new Scorer().addTo(background).pos(50,50,RIGHT);
-const timer = new Timer().addTo(background).pos(50,50);
+let score = new Scorer({
+    score:0,
+    font:"BabyDoll.ttf",
+    backgroundColor:orange,
+    borderColor: black,
+    borderWidth:3,
+    width:60
+
+}).addTo(background).pos(50,50,RIGHT);
+// const timer = new Timer().addTo(background).pos(50,50);
    
 //CATS-----------------------------------------------------------------------------
-let spotA = new Container(200, 200).pos(50, 150, LEFT, TOP).outline();
-let spotB = new Container(200, 200).pos(100, 150, RIGHT, TOP).outline();
-let spotC = new Container(200, 200).center().outline();
-let catCount;
+// let spotA = new Container(200, 200).pos(50, 150, LEFT, TOP).outline();
+// let spotB = new Container(200, 200).pos(100, 150, RIGHT, TOP).outline();
+// let spotC = new Container(200, 200).center().outline();
+// let catCount;
 
-let cats = new Pic(["catdemo.png", "catdemo2.png", "catdemo3.png"]);
+const blackcat = new Pic("blackcat.png").addTo(background).pos(50, 150, LEFT, TOP);
+const orangecat = new Pic("orangecat.png").addTo(background).pos(100, 150, RIGHT, TOP);
+const whitecat = new Pic("whitecat.png").addTo(background).pos(50, 150, LEFT, BOTTOM);
+const tuxcat = new Pic("tuxcat.png").addTo(background).pos(50, 150, RIGHT, BOTTOM);
 
-function isSpotEmpty(spot) {
-  return spot.children.length === 0;
+// let cats = [
+//     { cat: blackcat, satisfaction: 0 },
+//     { cat: orangecat, satisfaction: 0 },
+//     { cat: whitecat, satisfaction: 0 },
+//     { cat: tuxcat, satisfaction: 0 },
+// ]
+
+
+
+
+// function isSpotEmpty(spot) {
+//   return spot.children.length === 0;
+// }
+
+//     function pickCats() {
+//     const catPicker = pluck(cats);
+//     const randomSpot = Math.floor(Math.random() * 3);
+
+//     if (randomSpot === 0 && isSpotEmpty(spotA)) {
+//         catPicker.addTo(spotA).scaleTo(spotA).animate({x:200,y:200},1,"backOut");
+//         zog("Added cat to spotA");
+//     } else if (randomSpot === 1 && isSpotEmpty(spotB)) {
+//         catPicker.addTo(spotB).scaleTo(spotB).animate({x:200,y:200},1,"backOut");
+//         zog("Added cat to spotB");
+//     } else if (randomSpot === 2 && isSpotEmpty(spotC)) {
+//         catPicker.addTo(spotC).scaleTo(spotC).animate({x:200,y:200},1,"backOut");
+//         zog("Added cat to spotC");
+//     } else {
+//         zog("All spots are occupied, cannot add cat.");
+//     }
+//     }
+
+// setInterval(pickCats, interval);
+
+    // ITEMS TO CAT---------------------------------------------------------------------
+    let milk;
+    let food;
+    let brush;
+
+
+const item1 = new Container(100, 100).pos(100, 100, LEFT, BOTTOM);
+const item2 = new Container(100, 100).pos(0, 50, CENTER, BOTTOM);
+const item3 = new Container(100, 100).pos(150, 50, RIGHT, BOTTOM);
+
+let cats = [
+    { cat: blackcat, satisfaction: 0, accepting: ["milk", "food", "brush"] },
+    { cat: orangecat, satisfaction: 0, accepting: ["milk", "food", "brush"] },
+    { cat: whitecat, satisfaction: 0, accepting: ["milk", "food", "brush"] },
+    { cat: tuxcat, satisfaction: 0, accepting: ["milk", "food", "brush"] }
+];
+
+loop(10, () => {
+    milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
+    food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
+    brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
+
+    [milk, food, brush].forEach(item => {
+        item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY }; // Save initial scale
+        item.startPos = { x: item.x, y: item.y }; // Save initial position
+        item.on("pressup", () => checkItem(item));
+    });
+});
+
+function checkItem(item) {
+    cats.forEach(catInfo => {
+        if (item.hitTestBounds(catInfo.cat) && catInfo.accepting > 0) {
+            // If the cat is accepting the item, increase satisfaction and update accepting count
+            catInfo.satisfaction++;
+            catInfo.accepting--;
+
+            // Dispose of the item
+            item.dispose();
+
+            zog(`Cat Satisfaction: ${catInfo.satisfaction}`);
+            zog(`Cat Accepting: ${catInfo.accepting}`);
+
+            // Check if the cat has reached maximum satisfaction
+            if (catInfo.satisfaction >= 3) {
+                animateCatOffScreen(catInfo.cat);
+            }
+
+            // Update overall score
+            score++;
+            zog(`Score: ${score}`);
+        } else {
+            // If the cat is not accepting the item, snap it back to the basket
+            item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
+        }
+    });
 }
 
-    function pickCats() {
-    const catPicker = pluck(cats);
-    const randomSpot = Math.floor(Math.random() * 3);
-
-    if (randomSpot === 0 && isSpotEmpty(spotA)) {
-        catPicker.addTo(spotA).scaleTo(spotA).animate({x:200,y:200},1,"backOut");
-        zog("Added cat to spotA");
-    } else if (randomSpot === 1 && isSpotEmpty(spotB)) {
-        catPicker.addTo(spotB).scaleTo(spotB).animate({x:200,y:200},1,"backOut");
-        zog("Added cat to spotB");
-    } else if (randomSpot === 2 && isSpotEmpty(spotC)) {
-        catPicker.addTo(spotC).scaleTo(spotC).animate({x:200,y:200},1,"backOut");
-        zog("Added cat to spotC");
-    } else {
-        zog("All spots are occupied, cannot add cat.");
-    }
-    }
-
-setInterval(pickCats, interval);
-
-    //ITEMS TO CAT---------------------------------------------------------------------
-    // let milk; 
-    // const basket = new Container(W,H).center();
-
-    // loop(10, () => {
-    //     milk = new Pic("milkdemo.png", 100, 100).addTo(basket).pos(300,100,CENTER, BOTTOM).drag()
-    //     if (milk.hitTestBounds(cat1)) {
-    //           milk.dispose();
-    //           points.score += 1;
-    //           zog("!");
-    //    }
-    // });
-
-    
+function animateCatOffScreen(cat) {
+    cat.animate({y10})
+    cat.animate({x:-500, y:50}, 5, "backOut")
+};
 
 
-    // new Circle(70,red).pos(100,100,CENTER, BOTTOM).drag();
-    // new Circle(70,green).pos(-100,100,CENTER, BOTTOM).drag();
-    // new Circle(70,orange).pos(-300,100,CENTER, BOTTOM).drag();
+setInterval(() => {
+    cats.forEach(catInfo => {
+        catInfo.accepting = 3; 
+    });
+}, 5); 
 
-
-
-    
-        
-} // end ready
-
+}
 </script>
-<meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
 </head>
+
 <body></body>
+
 </html>
