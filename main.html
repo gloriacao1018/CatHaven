@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>ZIM - Code Creativity</title>
+
+<!-- zimjs.com - JavaScript Canvas Framework -->
+<script type=module>
+
+import zim from "https://zimjs.org/cdn/015/zim_game";
+const assets = ["blackcat.png","tuxcat.png","orangecat.png","whitecat.png"]
+const path = "assets/";
+// See Docs under Frame for FIT, FILL, FULL, and TAG
+new Frame(FIT, 1024, 768, light, dark, ready, assets, path);
+function ready() {
+    // let heart = 5;    
+    const background = new Pic ("catcafe.png").center();
+
+    let spotA = new Container(150,200,200,200).center().outline();
+    let spotB = new Container(150,200, 400, 400).center().outline();
+    let spotC = new Container(150,200, 200, 300).center().outline();
+
+
+    const timer = new Timer({
+        time:60,
+        borderColor:dark,
+    }).loc(100,100);
+
+    const scorer = new Scorer({backgroundColor:yellow, color:black}).loc(W-100,100);
+
+    let orangecat = new Pic ("orangecat.png");
+    let whitecat = new Pic ("whitecat.png");
+    let blackcat = new Pic ("blackcat.png");
+    let tuxcat = new Pic ("tuxcat.png");
+
+
+    let cats = [orangecat, whitecat, blackcat, tuxcat];
+
+    function getRandomCat() {
+        let randomIndex = Math.floor(Math.random() * cats.length);
+        return cats[randomIndex];
+    }
+
+    let randomCat = getRandomCat();
+    randomCat.addTo();
+
+    let water = new Circle(70,red).pos(100,100,CENTER, BOTTOM).drag();
+    let food = new Circle(70,green).pos(-100,100,CENTER, BOTTOM).drag();
+    let toy = new Circle(70,orange).pos(-300,100,CENTER, BOTTOM).drag();
+    let brush = new Circle(70,blue).pos(-500,100,CENTER, BOTTOM).drag();
+
+    const basket = new Container(W,H).center();
+    // loop(10, ()=>{
+    //     new Circle(70,blue).pos(300,100,CENTER, BOTTOM).drag();
+    // })
+    // loop(10, () => {
+    //     new Circle(70,blue).addTo(basket).pos(300,100,CENTER, BOTTOM).drag()
+    //       });
+    //       basket.loop((milk) => {
+    //         if (milk.hitTestCircleRect(cat1)) {
+    //           zog("!");
+    //         }
+    //       });
+
+
+    
+
+
+    
+        
+} // end ready
+
+</script>
+<meta name="viewport" content="width=device-width, user-scalable=no" />
+</head>
+<body></body>
+</html>
