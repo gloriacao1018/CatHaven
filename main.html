@@ -98,8 +98,8 @@ loop(10, () => {
     brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
 
     [milk, food, brush].forEach(item => {
-        item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY }; // Save initial scale
-        item.startPos = { x: item.x, y: item.y }; // Save initial position
+        item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY }; 
+        item.startPos = { x: item.x, y: item.y }; 
         item.on("pressup", () => checkItem(item));
     });
 });
@@ -126,7 +126,7 @@ function checkItem(item) {
             score++;
             zog(`Score: ${score}`);
         } else {
-            // If the cat is not accepting the item, snap it back to the basket
+            // If the cat is not accepting the item, snap it back to the start position
             item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
         }
     });
