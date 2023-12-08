@@ -8,9 +8,10 @@
 <script type=module>
 
 import zim from "https://zimjs.org/cdn/015/zim";
-
+const assets = ["blackcat.png","tuxcat.png","orangecat.png","whitecat.png"]
+const path = "assets/";
 // See Docs under Frame for FIT, FILL, FULL, and TAG
-new Frame(FIT, 1024, 768, light, dark, ready);
+new Frame(FIT, 1024, 768, light, dark, ready, assets, path);
 function ready() {
     // let heart = 5;    
     // const background = new Container(W,H);
@@ -20,30 +21,41 @@ function ready() {
     // let spotC = new Container(150,200).center().outline();
 
 
-    let cat1 = new Rectangle(150,200,yellow).pos(50,100,LEFT, TOP);
-    let cat2 = new Rectangle(150,200,blue).pos(100,100,RIGHT, TOP);
-    let cat3 = new Rectangle(150,200,green).center()
-  
+    let orangecat = new Pic ("orangecat.png");
+    let whitecat = new Pic ("whitecat.png");
+    let blackcat = new Pic ("blackcat.png");
+    let tuxcat = new Pic ("tuxcat.png");
+
+    let cats = [orangecat, whitecat, blackcat, tuxcat];
+
+    function getRandomCat() {
+        let randomIndex = Math.floor(Math.random() * cats.length);
+        return cats[randomIndex];
+    }
+
+    let randomCat = getRandomCat();
+    randomCat.addTo();
+
+    new Circle(70,red).pos(100,100,CENTER, BOTTOM).drag();
+    new Circle(70,green).pos(-100,100,CENTER, BOTTOM).drag();
+    new Circle(70,orange).pos(-300,100,CENTER, BOTTOM).drag();
 
 
     const basket = new Container(W,H).center();
     // loop(10, ()=>{
     //     new Circle(70,blue).pos(300,100,CENTER, BOTTOM).drag();
     // })
-    loop(10, () => {
-        new Circle(70,blue).addTo(basket).pos(300,100,CENTER, BOTTOM).drag()
-          });
-          basket.loop((milk) => {
-            if (milk.hitTestCircleRect(cat1)) {
-              zog("!");
-            }
-          });
+    // loop(10, () => {
+    //     new Circle(70,blue).addTo(basket).pos(300,100,CENTER, BOTTOM).drag()
+    //       });
+    //       basket.loop((milk) => {
+    //         if (milk.hitTestCircleRect(cat1)) {
+    //           zog("!");
+    //         }
+    //       });
 
 
-    new Circle(70,red).pos(100,100,CENTER, BOTTOM).drag();
-    new Circle(70,green).pos(-100,100,CENTER, BOTTOM).drag();
-    new Circle(70,orange).pos(-300,100,CENTER, BOTTOM).drag();
-
+    
 
 
     
