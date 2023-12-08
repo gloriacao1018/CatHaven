@@ -20,7 +20,6 @@ function ready() {
 //BACKGROUND ELEMENTS-------------------------------------------------------------
 const background = new Container(W,H).center();
 let score = new Scorer({
-    score:0,
     font:"BabyDoll.ttf",
     backgroundColor:orange,
     borderColor: black,
@@ -132,9 +131,16 @@ function checkItem(item) {
     });
 }
 
+//animate in two parts, first jump then move off screen 
 function animateCatOffScreen(cat) {
-    cat.animate({y10})
-    cat.animate({x:-500, y:50}, 5, "backOut")
+    cat.animate({
+        props:[
+            {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
+            {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
+            {props:{x:-500, y:50}, time: 5, ease:"backOut"}
+        ]
+    // cat.animate({x:-500, y:50}, 5, "backOut")
+    })
 };
 
 
