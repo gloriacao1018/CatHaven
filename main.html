@@ -10,7 +10,7 @@
 
 import zim from "https://zimjs.com/cdn/015/zim_game";
 
-const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png"];
+const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "1.png", "2.png","3.png", "4.png", "5.png","6.png"];
 const path = "assets/"
 
 // See Docs under Frame for FIT, FILL, FULL, and TAG
@@ -24,18 +24,60 @@ let score = new Scorer({
     backgroundColor:orange,
     borderColor: black,
     borderWidth:3,
-    width:60
+    width:60}).addTo(background).pos(50,50,RIGHT);
 
-}).addTo(background).pos(50,50,RIGHT);
 const timer = new Timer({
     font:"BabyDoll.ttf",
     backgroundColor:yellow,
     borderColor: black,
     borderWidth:3,
-    width:60
+    width:60}).addTo(background).pos(50,50);
 
-}).addTo(background).pos(50,50);
-   
+//AUDIO---------------------------------------------------------------------------
+S.on("stagemousedown", ()=>{   
+        new Aud("backing.mp3").play({volume:.1, loop:true});
+    }, null, true);
+
+const flip = new Aud({
+        file:"flip.mp3",
+        volume:.1,
+        interrupt:"none",
+        maxNum:1
+});
+
+const close = new Aud({
+        file:"close.mp3",
+        volume:.1,
+        interrupt:"none",
+        maxNum:1
+});
+
+const pickup = new Aud({
+        file:"pickup.mp3",
+        volume:.1,
+        interrupt:"none",
+        maxNum:1
+});
+
+const meow = new Aud({
+        file:"meow.mp3",
+        volume:.1,
+        interrupt:"none",
+        maxNum:1
+});
+//CATBIBLE------------------------------------------------------------------------
+const pages = [
+    new Page("1.png"),
+    new Page("2.png"),
+    new Page("3.png"),
+    new Page("4.png"),
+    new Page("5.png"),
+    new Page("6.png")
+];
+
+// Create a Book with the array of Page instances
+const catbible = new Book(pages).center().top();
+
 //CATS-----------------------------------------------------------------------------
 // let spotA = new Container(200, 200).pos(50, 150, LEFT, TOP).outline();
 // let spotB = new Container(200, 200).pos(100, 150, RIGHT, TOP).outline();
@@ -107,7 +149,10 @@ loop(10, () => {
     [milk, food, brush].forEach(item => {
         item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY }; 
         item.startPos = { x: item.x, y: item.y }; 
-        item.on("pressup", () => checkItem(item));
+        item.on("pressup", () => {
+            checkItem(item);
+            pickup.play();
+        })
     });
 });
 
@@ -139,6 +184,7 @@ function checkItem(item) {
 
 //animate in two parts, first jump then move off screen 
 function animateCatOffScreen(cat) {
+    meow.play();
     cat.animate({
         props:[
             {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
@@ -146,7 +192,7 @@ function animateCatOffScreen(cat) {
             {props:{x:-500, y:50}, time: 5, ease:"backOut"}
         ]
     // cat.animate({x:-500, y:50}, 5, "backOut")
-    })
+    });
 };
 
 
