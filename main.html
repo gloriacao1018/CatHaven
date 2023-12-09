@@ -41,13 +41,20 @@ function ready() {
     let tuxcat = new Pic ("tuxcat.png").sca(0.5);
 
     let spots = [spotA, spotB, spotC, spotD];
-    let cats = [
-        { cat: blackcat, satisfaction: 0, accepting: ["milk", "brush", "food"], spot: null },
-        { cat: orangecat, satisfaction: 0, accepting: ["food", "milk", "catnip"], spot: null },
-        { cat: whitecat, satisfaction: 0, accepting: ["catnip", "milk"], spot: null },
-        { cat: tuxcat, satisfaction: 0, accepting: ["brush", "catnip", "food"], spot: null }
-    ];
     
+    let initialItems = [
+        ["milk", "brush", "food"],
+        ["food", "milk", "catnip"],
+        ["catnip", "milk", "toy"],
+        ["brush", "catnip", "food"]
+    ];
+
+    let cats = [
+        { cat: blackcat, satisfaction: 0, accepting: [...initialItems[0]], spot: null },
+        { cat: orangecat, satisfaction: 0, accepting: [...initialItems[1]], spot: null },
+        { cat: whitecat, satisfaction: 0, accepting: [...initialItems[2]], spot: null },
+        { cat: tuxcat, satisfaction: 0, accepting: [...initialItems[3]], spot: null }
+    ];
     function addRandomCat() {
 
         // After adding a cat, set a timeout to add another cat after a random delay
@@ -127,53 +134,37 @@ function ready() {
     });
 
     function checkItem(item) {
-        cats.forEach(catInfo => {
+    cats.forEach((catInfo, index) => {
         if (item.hitTestBounds(catInfo.cat)) {
             if (item.name && typeof item.name === 'string' && catInfo.accepting.includes(item.name)) {
-                // If the cat is accepting the item, increase satisfaction
+                // Remove the item from the accepting array
+                catInfo.accepting = catInfo.accepting.filter(i => i !== item.name);
+
+                // Increase satisfaction
                 catInfo.satisfaction++;
                 zog(`Increased satisfaction of ${catInfo.cat} to ${catInfo.satisfaction}`);
 
                 // If the cat's satisfaction has reached 3, dispatch the 'satisfied' event
                 if (catInfo.satisfaction >= 3) {
                     catInfo.cat.dispatchEvent("satisfied");
-                }
-                // Dispose of the item
-                item.dispose();
-
-                zog(`Cat Satisfaction: ${catInfo.satisfaction}`);
-
-                // Check if the cat has reached maximum satisfaction
-                if (catInfo.satisfaction >= catInfo.accepting.length) {
+                    catInfo.accepting = [...initialItems[index]];
                     animateCatOffScreen(catInfo.cat);
                     score.score++;
                     zog(score.score);
-
-                    // Remove the cat from the cats array
-                    // cats = cats.filter(cat => cat.cat !== catInfo.cat);
-
-                    // Find the spot that the cat was occupying and set occupied to false
-                    // let spot = spots.find(spot => spot.x === catInfo.cat.x && spot.y === catInfo.cat.y);
-                    // if (spot) {
-                    //     spot.occupied = false;
-                    // }
-
-                    // Add a new cat to the scene after a delay
-                    setTimeout(addRandomCat, 1000);
                 }
-            } else {
-                // If the cat is not accepting the item, play a sound effect
-                // playSoundEffect();
 
-                // Snap the item back to the start position
-                item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
-            }
+                // Dispose of the item
+                item.dispose();
             } else {
-                // If the item is not hitting any cat, snap it back to the start position
+                // If the cat is not accepting the item, snap it back to the start position
                 item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
             }
-        });
-    }
+        } else {
+            // If the item is not hitting any cat, snap it back to the start position
+            item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
+        }
+    });
+}
 
     function animateCatOffScreen(cat) {
         cat.animate([
