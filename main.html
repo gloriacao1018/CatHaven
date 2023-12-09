@@ -133,8 +133,14 @@ function ready() {
         });
     });
 
+
     function checkItem(item) {
     cats.forEach((catInfo, index) => {
+        // Check if the cat's satisfaction has already reached 3
+        if (catInfo.satisfaction === 3) {
+            return; // Skip item interaction for this cat
+        }
+
         if (item.hitTestBounds(catInfo.cat)) {
             if (item.name && typeof item.name === 'string' && catInfo.accepting.includes(item.name)) {
                 // Remove the item from the accepting array
@@ -145,7 +151,7 @@ function ready() {
                 zog(`Increased satisfaction of ${catInfo.cat} to ${catInfo.satisfaction}`);
 
                 // If the cat's satisfaction has reached 3, dispatch the 'satisfied' event
-                if (catInfo.satisfaction >= 3) {
+                if (catInfo.satisfaction === 3) {
                     catInfo.cat.dispatchEvent("satisfied");
                     catInfo.accepting = [...initialItems[index]];
                     animateCatOffScreen(catInfo.cat);
@@ -166,16 +172,62 @@ function ready() {
     });
 }
 
+    // function checkItem(item) {
+    //     cats.forEach((catInfo, index) => {
+    //         if (item.hitTestBounds(catInfo.cat)) {
+    //             if (item.name && typeof item.name === 'string' && catInfo.accepting.includes(item.name)) {
+    //                 // Remove the item from the accepting array
+    //                 catInfo.accepting = catInfo.accepting.filter(i => i !== item.name);
+
+    //                 // Increase satisfaction
+    //                 catInfo.satisfaction++;
+    //                 zog(`Increased satisfaction of ${catInfo.cat} to ${catInfo.satisfaction}`);
+
+    //                 // If the cat's satisfaction has reached 3, dispatch the 'satisfied' event
+    //                 if (catInfo.satisfaction == 3) {
+    //                     catInfo.cat.dispatchEvent("satisfied");
+    //                     catInfo.accepting = [...initialItems[index]];
+    //                     animateCatOffScreen(catInfo.cat);
+    //                     score.score++;
+    //                     zog(score.score);
+    //                 }
+
+    //                 // Dispose of the item
+    //                 item.dispose();
+    //             } else {
+    //                 // If the cat is not accepting the item, snap it back to the start position
+    //                 item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
+    //             }
+    //         } else {
+    //             // If the item is not hitting any cat, snap it back to the start position
+    //             item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
+    //         }
+    //     });
+    // }
+
     function animateCatOffScreen(cat) {
         cat.animate([
-            {props:{y:cat.y-20}, time:.5, ease: "bounceIn"},
-            {props:{y:cat.y+20}, time:.7, ease: "bounceOut"},
-            {props:{x:-500, y:50}, time: 5, ease:"backOut"}
+            { props: { y: cat.y - 20 }, time: 0.5, ease: "bounceIn" },
+            { props: { y: cat.y + 20 }, time: 0.7, ease: "bounceOut" },
+            { props: { x: -500, y: 50 }, time: 5, ease: "backOut" }
         ], null, () => {
-            cat.removeFrom(); // Remove the cat from the scene
-            addRandomCat(); // Add a new cat
+            // Animation completed, remove the cat
+            cat.removeFrom();
+
+            // Add a new cat after removing the current one
+            addRandomCat();
         });
-    };
+
+        // Listen for the end of the animation
+        cat.on("animationend", () => {
+            // Check if the cat still exists (it might have been removed manually)
+            if (cat.stage) {
+                cat.removeFrom(); // Remove the cat from the scene
+                addRandomCat(); // Add a new cat
+            }
+        });
+    }
+
 
 
 
