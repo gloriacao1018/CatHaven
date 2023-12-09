@@ -12,7 +12,7 @@ const path = "assets/";
 // See Docs under Frame for FIT, FILL, FULL, and TAG
 new Frame(FIT, 1024, 768, light, dark, ready, assets, path);
 function ready() {
-    const background = new Pic ("catcafe.png").sca(1.5).center();
+    const background = new Pic ("background.png").sca(.85).center();
 
     const timer = new Timer({
         time:60,
@@ -133,77 +133,38 @@ function ready() {
         });
     });
 
-
     function checkItem(item) {
-    cats.forEach((catInfo, index) => {
-        // Check if the cat's satisfaction has already reached 3
-        if (catInfo.satisfaction === 3) {
-            return; // Skip item interaction for this cat
-        }
+        cats.forEach((catInfo, index) => {
+            if (item.hitTestBounds(catInfo.cat)) {
+                if (item.name && typeof item.name === 'string' && catInfo.accepting.includes(item.name)) {
+                    // Remove the item from the accepting array
+                    catInfo.accepting = catInfo.accepting.filter(i => i !== item.name);
 
-        if (item.hitTestBounds(catInfo.cat)) {
-            if (item.name && typeof item.name === 'string' && catInfo.accepting.includes(item.name)) {
-                // Remove the item from the accepting array
-                catInfo.accepting = catInfo.accepting.filter(i => i !== item.name);
+                    // Increase satisfaction
+                    catInfo.satisfaction++;
+                    zog(`Increased satisfaction of ${catInfo.cat} to ${catInfo.satisfaction}`);
 
-                // Increase satisfaction
-                catInfo.satisfaction++;
-                zog(`Increased satisfaction of ${catInfo.cat} to ${catInfo.satisfaction}`);
+                    // If the cat's satisfaction has reached 3, dispatch the 'satisfied' event
+                    if (catInfo.satisfaction === 3) {
+                        catInfo.cat.dispatchEvent("satisfied");
+                        catInfo.accepting = [...initialItems[index]];
+                        animateCatOffScreen(catInfo.cat);
+                        score.score++;
+                        zog(score.score);
+                    }
 
-                // If the cat's satisfaction has reached 3, dispatch the 'satisfied' event
-                if (catInfo.satisfaction === 3) {
-                    catInfo.cat.dispatchEvent("satisfied");
-                    catInfo.accepting = [...initialItems[index]];
-                    animateCatOffScreen(catInfo.cat);
-                    score.score++;
-                    zog(score.score);
+                    // Dispose of the item
+                    item.dispose();
+                } else {
+                    // If the cat is not accepting the item, snap it back to the start position
+                    item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
                 }
-
-                // Dispose of the item
-                item.dispose();
             } else {
-                // If the cat is not accepting the item, snap it back to the start position
+                // If the item is not hitting any cat, snap it back to the start position
                 item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
             }
-        } else {
-            // If the item is not hitting any cat, snap it back to the start position
-            item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
-        }
-    });
-}
-
-    // function checkItem(item) {
-    //     cats.forEach((catInfo, index) => {
-    //         if (item.hitTestBounds(catInfo.cat)) {
-    //             if (item.name && typeof item.name === 'string' && catInfo.accepting.includes(item.name)) {
-    //                 // Remove the item from the accepting array
-    //                 catInfo.accepting = catInfo.accepting.filter(i => i !== item.name);
-
-    //                 // Increase satisfaction
-    //                 catInfo.satisfaction++;
-    //                 zog(`Increased satisfaction of ${catInfo.cat} to ${catInfo.satisfaction}`);
-
-    //                 // If the cat's satisfaction has reached 3, dispatch the 'satisfied' event
-    //                 if (catInfo.satisfaction == 3) {
-    //                     catInfo.cat.dispatchEvent("satisfied");
-    //                     catInfo.accepting = [...initialItems[index]];
-    //                     animateCatOffScreen(catInfo.cat);
-    //                     score.score++;
-    //                     zog(score.score);
-    //                 }
-
-    //                 // Dispose of the item
-    //                 item.dispose();
-    //             } else {
-    //                 // If the cat is not accepting the item, snap it back to the start position
-    //                 item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
-    //             }
-    //         } else {
-    //             // If the item is not hitting any cat, snap it back to the start position
-    //             item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
-    //         }
-    //     });
-    // }
+        });
+    }
 
     function animateCatOffScreen(cat) {
         cat.animate([
