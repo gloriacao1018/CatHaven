@@ -10,7 +10,7 @@
 
 import zim from "https://zimjs.com/cdn/015/zim_game";
 
-const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "1.png", "2.png","3.png", "4.png", "5.png","6.png"];
+const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "0.png","1.png", "2.png","3.png", "4.png", "5.png"];
 const path = "assets/"
 
 // See Docs under Frame for FIT, FILL, FULL, and TAG
@@ -65,14 +65,35 @@ const meow = new Aud({
         interrupt:"none",
         maxNum:1
 });
+
+const angry = new Aud({
+        file:"angry.mp3",
+        volume:.1,
+        interrupt:"none",
+        maxNum:1
+});
 //CATBIBLE------------------------------------------------------------------------
-const page1 = new Page("1.png");
-const page2 = new Page("2.png");
-const page3 = new Page("3.png");
-const page4 = new Page("4.png");
-const page5 = new Page("5.png");
-const page6 = new Page("6.png");
-const pages = [page1, page2, page3, page4, page5, page6];
+let closeBook;
+
+const page1 = new Page({color: "#EFE2CF"});
+page1.content = new Pic("0.png").addTo(page1).pos(-10,0,CENTER,LEFT,page1);
+
+const page2 = new Page({color: "#EFE2CF"});
+page2.content = new Pic("1.png").addTo(page2).pos(340,0,CENTER,RIGHT, page1);
+
+const page3 = new Page({color: "#EFE2CF"});
+page3.content = new Pic("2.png").addTo(page3).pos(-10,0,CENTER,LEFT,page3);
+
+const page4 = new Page({color: "#EFE2CF"});
+page4.content = new Pic("3.png").addTo(page4).pos(340,0,CENTER,RIGHT, page3);
+
+const page5 = new Page({color: "#EFE2CF"});
+page5.content = new Pic("4.png").addTo(page5).pos(-10,0,CENTER,LEFT,page5);
+
+const page6 = new Page({color: "#EFE2CF"});
+page6.content = new Pic("5.png").addTo(page6).pos(340,0,CENTER,RIGHT, page5);
+
+const pages = [page1, page2, page3, page4, page5];
 
 const book = new Book(700, 500, pages)
 
@@ -80,63 +101,61 @@ const bookCont = new Container(70,70).pos(150,50,RIGHT, TOP);
 const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1)   
     .tap(()=>{
         flip.play();
-        book.center().addTo(S)
-});
-
-S.on("stagemousedown", (e) => {
-    if (S.contains(book)) {
-    close.play()
-    book.removeFrom(S); 
-    }
-});
-
+        book.center().addTo(S);
+        closeBook = new Button(40,38,"x",red).pos(170,145, RIGHT, TOP);
+        closeBook.tap(()=>{
+            if (S.contains(book)) {
+                close.play()
+                book.removeFrom(S);
+                closeBook.removeFrom()
+            }
+        });
+    });
 
 //CATS-----------------------------------------------------------------------------
-// let spotA = new Container(200, 200).pos(50, 150, LEFT, TOP).outline();
-// let spotB = new Container(200, 200).pos(100, 150, RIGHT, TOP).outline();
-// let spotC = new Container(200, 200).center().outline();
-// let catCount;
-
 const blackcat = new Pic("blackcat.png").addTo(background).pos(50, 150, LEFT, TOP);
 const orangecat = new Pic("orangecat.png").addTo(background).pos(100, 150, RIGHT, TOP);
 const whitecat = new Pic("whitecat.png").addTo(background).pos(50, 150, LEFT, BOTTOM);
 const tuxcat = new Pic("tuxcat.png").addTo(background).pos(50, 150, RIGHT, BOTTOM);
 
-// let cats = [
-//     { cat: blackcat, satisfaction: 0 },
-//     { cat: orangecat, satisfaction: 0 },
-//     { cat: whitecat, satisfaction: 0 },
-//     { cat: tuxcat, satisfaction: 0 },
-// ]
+//CAT TIMER-----------------------------------------------------------------------------
 
+let blackTimer = new Timer({
+        time: 15,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60}).addTo(blackcat).pos(130,15);
 
+    let orangeTimer = new Timer({
+        time: 15,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60}).addTo(orangecat).pos(135,-10);
 
+    let whiteTimer = new Timer({
+        time: 10,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60}).addTo(whitecat).pos(135,10);
 
-// function isSpotEmpty(spot) {
-//   return spot.children.length === 0;
-// }
+    let tuxTimer = new Timer({
+        time: 8,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60}).addTo(tuxcat).pos(135,5);
 
-//     function pickCats() {
-//     const catPicker = pluck(cats);
-//     const randomSpot = Math.floor(Math.random() * 3);
+        let catTimers = [blackTimer, orangeTimer, whiteTimer,tuxTimer];
 
-//     if (randomSpot === 0 && isSpotEmpty(spotA)) {
-//         catPicker.addTo(spotA).scaleTo(spotA).animate({x:200,y:200},1,"backOut");
-//         zog("Added cat to spotA");
-//     } else if (randomSpot === 1 && isSpotEmpty(spotB)) {
-//         catPicker.addTo(spotB).scaleTo(spotB).animate({x:200,y:200},1,"backOut");
-//         zog("Added cat to spotB");
-//     } else if (randomSpot === 2 && isSpotEmpty(spotC)) {
-//         catPicker.addTo(spotC).scaleTo(spotC).animate({x:200,y:200},1,"backOut");
-//         zog("Added cat to spotC");
-//     } else {
-//         zog("All spots are occupied, cannot add cat.");
-//     }
-//     }
+//ITEMS TO CAT---------------------------------------------------------------------
 
-// setInterval(pickCats, interval);
-
-    // ITEMS TO CAT---------------------------------------------------------------------
     let milk;
     let food;
     let toy;
@@ -148,10 +167,10 @@ const item2 = new Container(100, 100).pos(0, 50, CENTER, BOTTOM);
 const item3 = new Container(100, 100).pos(150, 50, RIGHT, BOTTOM);
 
 let cats = [
-    { cat: blackcat, satisfaction: 0, accepting: ["milk", "food", "brush"] },
-    { cat: orangecat, satisfaction: 0, accepting: ["milk", "food", "brush"] },
-    { cat: whitecat, satisfaction: 0, accepting: ["milk", "food", "brush"] },
-    { cat: tuxcat, satisfaction: 0, accepting: ["milk", "food", "brush"] }
+    { cat: blackcat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:blackTimer },
+    { cat: orangecat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:orangeTimer},
+    { cat: whitecat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:whiteTimer},
+    { cat: tuxcat, satisfaction: 0, accepting: ["milk", "food", "brush"],catTimers:tuxTimer }
 ];
 
 loop(10, () => {
@@ -172,18 +191,20 @@ loop(10, () => {
 function checkItem(item) {
     cats.forEach(catInfo => {
         if (item.hitTestBounds(catInfo.cat) && catInfo.accepting > 0) {
-            // If the cat is accepting the item, increase satisfaction and update accepting count
+            
             catInfo.satisfaction++;
             catInfo.accepting--;
 
-            // Dispose of the item
+
             item.dispose();
 
             zog(`Cat Satisfaction: ${catInfo.satisfaction}`);
             zog(`Cat Accepting: ${catInfo.accepting}`);
 
-            // Check if the cat has reached maximum satisfaction
+      
             if (catInfo.satisfaction >= 3) {
+                catInfo.catTimers.dispose();
+                //added a dispose
                 animateCatOffScreen(catInfo.cat);
                 score.score++;
             zog(`Score: ${score}`);
@@ -195,18 +216,6 @@ function checkItem(item) {
     });
 }
 
-//animate in two parts, first jump then move off screen 
-function animateCatOffScreen(cat) {
-    meow.play();
-    cat.animate({
-        props:[
-            {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
-            {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
-            {props:{x:-500, y:50}, time: 5, ease:"backOut"}
-        ]
-    });
-};
-
 
 setInterval(() => {
     cats.forEach(catInfo => {
@@ -214,7 +223,66 @@ setInterval(() => {
     });
 }, 5); 
 
+//CAT REACTIONS--------------------------------------------------------------------
+function updateTimer() {
+    for (let i = 0; i < catTimers.length; i++) {
+        let timer = catTimers[i];
+        if (timer.time <= 3) {
+            timer.backgroundColor = "red";
+        } else if (timer.time <= 7) {
+            timer.backgroundColor = "orange";
+        } else {
+            timer.backgroundColor = white;
+        }
+        if (timer.time <= 0) {
+            animateCatMad(cats[i].cat);
+            timer.dispose();
+        }
+    }
 }
+
+Ticker.add(updateTimer, 1);
+
+//HAPPY CAT
+function animateCatOffScreen(cat) {
+    if (!cat.animated) {
+        cat.animated = true; 
+    meow.play();
+    cat.animate({
+        props:[
+            {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
+            {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
+            {props:{x:-500, y:50}, time: 5, ease:"backOut"}
+        ],
+        });
+    };
+};
+
+
+//MAD CAT
+function animateCatMad(cat) {
+    if (!cat.animated) {
+        cat.animated = true; 
+        angry.play();
+        cat.animate({
+            props:{x:-500, y:50}, 
+            time: 5, 
+            ease:"backOut",
+        })
+    }
+}
+
+
+
+
+
+
+
+
+
+}
+
+
 </script>
     <meta name="viewport" content="width=device-width, user-scalable=no" />
 </head>
