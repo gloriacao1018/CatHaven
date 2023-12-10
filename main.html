@@ -18,21 +18,30 @@ new Frame(FIT, 1024, 768, light, dark, ready, assets, path);
 function ready() {
 
 //BACKGROUND ELEMENTS-------------------------------------------------------------
-const background = new Container(W,H).center();
+const background = new Pic("background.png").sca(.85).center();
+
 let score = new Scorer({
     font:"BabyDoll.ttf",
     backgroundColor:orange,
     borderColor: black,
     borderWidth:3,
-    width:60}).addTo(background).pos(50,50,RIGHT);
+    width:60}).pos(50,50,RIGHT);
 
 const timer = new Timer({
     font:"BabyDoll.ttf",
     backgroundColor:yellow,
     borderColor: black,
     borderWidth:3,
-    width:60}).addTo(background).pos(50,50);
+    width:60}).pos(50,50);
 
+
+    //ADD IN START IMAGE 
+
+    S.on("stagemousedown", ()=>{              
+    timer.start();    
+    }, null, true); 
+
+S.update();
 //AUDIO---------------------------------------------------------------------------
 S.on("stagemousedown", ()=>{   
         new Aud("backing.mp3").play({volume:.1, loop:true});
