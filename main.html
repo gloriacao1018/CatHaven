@@ -10,7 +10,9 @@
 
 import zim from "https://zimjs.com/cdn/015/zim_game";
 
-const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "0.png","1.png", "2.png","3.png", "4.png", "5.png"];
+const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png","toydemo.png","fooddemo.png",
+"catnipdemo.png","brushdemo.png","catbible.png","angry.mp3","backing.mp3","close.mp3","flip.mp3","meow.mp3","pickup.mp3", 
+"0.png","1.png", "2.png","3.png", "4.png", "5.png", "background.png"];
 const path = "assets/"
 
 // See Docs under Frame for FIT, FILL, FULL, and TAG
@@ -18,7 +20,10 @@ new Frame(FIT, 1024, 768, light, dark, ready, assets, path);
 function ready() {
 
 //BACKGROUND ELEMENTS-------------------------------------------------------------
-const background = new Container(W,H).center();
+const background = new Container(W,H).center().ord(-20);
+
+new Pic ("background.png").sca(.85).addTo(background).center();
+
 let score = new Scorer({
     font:"BabyDoll.ttf",
     backgroundColor:orange,
@@ -28,7 +33,7 @@ let score = new Scorer({
 
 const timer = new Timer({
     font:"BabyDoll.ttf",
-    backgroundColor:yellow,
+    backgroundColor:orange,
     borderColor: black,
     borderWidth:3,
     width:60}).addTo(background).pos(50,50);
@@ -112,79 +117,108 @@ const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1
         });
     });
 
-//CATS-----------------------------------------------------------------------------
-const blackcat = new Pic("blackcat.png").addTo(background).pos(50, 150, LEFT, TOP);
-const orangecat = new Pic("orangecat.png").addTo(background).pos(100, 150, RIGHT, TOP);
-const whitecat = new Pic("whitecat.png").addTo(background).pos(50, 150, LEFT, BOTTOM);
-const tuxcat = new Pic("tuxcat.png").addTo(background).pos(50, 150, RIGHT, BOTTOM);
+//CATS/PLACEMENT-----------------------------------------------------------------------------
+    let milk;
+    let food;
+    let brush;
+    let catnip;
+    let toy;
 
-//CAT TIMER-----------------------------------------------------------------------------
+    let spotA = new Rectangle(150, 150, clear).loc(500,400).outline().reg(CENTER);
+    let spotB = new Rectangle(150, 150, clear).loc(150,500).outline().reg(CENTER);
+    let spotC = new Rectangle(150, 150, clear).loc(900,450).outline().reg(CENTER);
+    let spotD = new Rectangle(150, 150, clear).loc(700,450).outline().reg(CENTER);
+    
+    let orangecat = new Pic ("orangecat.png").sca(0.5);
+    let whitecat = new Pic ("whitecat.png").sca(0.5);
+    let blackcat = new Pic ("blackcat.png").sca(0.5);
+    let tuxcat = new Pic ("tuxcat.png").sca(0.5);
 
-let blackTimer = new Timer({
-        time: 15,
-        font:"BabyDoll.ttf",
-        backgroundColor:white,
-        borderColor: black,
-        borderWidth:3,
-        width:60}).addTo(blackcat).pos(130,15);
+    let spots = [spotA, spotB, spotC, spotD];
 
-    let orangeTimer = new Timer({
-        time: 15,
-        font:"BabyDoll.ttf",
-        backgroundColor:white,
-        borderColor: black,
-        borderWidth:3,
-        width:60}).addTo(orangecat).pos(135,-10);
+    let initialItems = [
+        [milk, brush, food],
+        [food, milk, catnip],
+        [catnip, milk, toy],
+        [brush, catnip, food]
+    ];
 
-    let whiteTimer = new Timer({
-        time: 10,
-        font:"BabyDoll.ttf",
-        backgroundColor:white,
-        borderColor: black,
-        borderWidth:3,
-        width:60}).addTo(whitecat).pos(135,10);
+    let cats = [
+        { cat: blackcat, satisfaction: 0, accepting: [...initialItems[0]], spot: null,catTimers:blackTimer },
+        { cat: orangecat, satisfaction: 0, accepting: [...initialItems[1]], spot: null,catTimers:orangeTimer },
+        { cat: whitecat, satisfaction: 0, accepting: [...initialItems[2]], spot: null,catTimers:whiteTimer },
+        { cat: tuxcat, satisfaction: 0, accepting: [...initialItems[3]], spot: null,catTimers:tuxTimer }
+    ];
+    function addRandomCat() {
 
-    let tuxTimer = new Timer({
-        time: 8,
-        font:"BabyDoll.ttf",
-        backgroundColor:white,
-        borderColor: black,
-        borderWidth:3,
-        width:60}).addTo(tuxcat).pos(135,5);
+        // After adding a cat, set a timeout to add another cat after a random delay
+        let delay = Math.random() * 4000 + 1000; // Random delay between 1-5 seconds
+        setTimeout(addRandomCat, delay);
+    }
 
-        let catTimers = [blackTimer, orangeTimer, whiteTimer,tuxTimer];
+    // Start adding cats 2 seconds after the game starts
+    setInterval(addRandomCat, 2000);
+
+    function getRandomSpot() {
+    let availableSpots = spots.filter(spot => !spot.occupied);
+    if (availableSpots.length === 0) {
+        return null; 
+    }
+        let randomIndex = Math.floor(Math.random() * availableSpots.length);
+        return availableSpots[randomIndex];
+    }
+
+    function getRandomCat() {
+        let randomIndex = Math.floor(Math.random() * cats.length);
+        return cats[randomIndex];
+    }
+    function addRandomCat() {
+    let randomSpot = getRandomSpot();
+    if (!randomSpot) {
+        return; // No available spot, so don't add a new cat
+    }
+    randomSpot.occupied = true;
+    let randomCat = getRandomCat();
+    randomCat.spot = randomSpot; 
+    let spotCenterX = randomSpot.x + randomSpot.width / 2;
+    let spotCenterY = randomSpot.y + randomSpot.height / 2;
+    let catCenterX = spotCenterX - randomCat.cat.width / 2;
+    let catCenterY = spotCenterY - randomCat.cat.height / 2;
+    randomCat.cat.x = catCenterX;
+    randomCat.cat.y = catCenterY;
+    randomCat.cat.addTo();
+    randomCat.cat.on("satisfied", () => {
+        if (randomCat.satisfaction >= 3) {
+            zog(`Removing ${randomCat.cat} because satisfaction is ${randomCat.satisfaction}`);
+            randomCat.cat.removeFrom();
+            randomSpot.occupied = false;
+        }
+    });
+    }
 
 //ITEMS TO CAT---------------------------------------------------------------------
 
-    let milk;
-    let food;
-    let toy;
-    let brush;
+const item1 = new Container(100, 100).loc(103, 578);
+const item2 = new Container(100, 100).loc(306, 608);
+const item3 = new Container(100, 100).loc(797, 624);
+const item4 = new Container(100, 100).loc(462, 606);
+const item5 = new Container(100, 100).loc(662, 602);
 
-
-const item1 = new Container(100, 100).pos(100, 100, LEFT, BOTTOM);
-const item2 = new Container(100, 100).pos(0, 50, CENTER, BOTTOM);
-const item3 = new Container(100, 100).pos(150, 50, RIGHT, BOTTOM);
-
-let cats = [
-    { cat: blackcat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:blackTimer },
-    { cat: orangecat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:orangeTimer},
-    { cat: whitecat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:whiteTimer},
-    { cat: tuxcat, satisfaction: 0, accepting: ["milk", "food", "brush"],catTimers:tuxTimer }
-];
-
-loop(10, () => {
+loop(30, () => {
     milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
     food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
     brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
+    catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
+    toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
 
-    [milk, food, brush].forEach(item => {
-        item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY }; 
-        item.startPos = { x: item.x, y: item.y }; 
+
+    [milk, food, brush, catnip, toy].forEach(item => {
+        item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY };
+        item.startPos = { x: item.x, y: item.y };
         item.on("pressup", () => {
             checkItem(item);
             pickup.play();
-        })
+        });
     });
 });
 
@@ -223,6 +257,42 @@ setInterval(() => {
     });
 }, 5); 
 
+
+//CAT TIMER-----------------------------------------------------------------------------
+
+let blackTimer = new Timer({
+        time: 15,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60}).addTo(blackcat).pos(130,15);
+
+    let orangeTimer = new Timer({
+        time: 15,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60}).addTo(orangecat).pos(135,-10);
+
+    let whiteTimer = new Timer({
+        time: 10,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60}).addTo(whitecat).pos(135,10);
+
+    let tuxTimer = new Timer({
+        time: 8,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60}).addTo(tuxcat).pos(135,5);
+
+        let catTimers = [blackTimer, orangeTimer, whiteTimer,tuxTimer];
 //CAT REACTIONS--------------------------------------------------------------------
 function updateTimer() {
     for (let i = 0; i < catTimers.length; i++) {
@@ -248,15 +318,22 @@ function animateCatOffScreen(cat) {
     if (!cat.animated) {
         cat.animated = true; 
     meow.play();
-    cat.animate({
-        props:[
-            {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
-            {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
-            {props:{x:-500, y:50}, time: 5, ease:"backOut"}
-        ],
+    cat.animate([
+            { props: { y: cat.y - 20 }, time: 0.5, ease: "bounceIn" },
+            { props: { y: cat.y + 20 }, time: 0.7, ease: "bounceOut" },
+            { props: { x: -500, y: 50 }, time: 5, ease: "backOut" }
+        ], 
+        null, () => {
+            cat.removeFrom();
+            addRandomCat();
         });
-    };
-};
+        cat.on("animationend", () => {
+            if (cat.stage) {
+                cat.removeFrom(); 
+                addRandomCat(); 
+            }
+        });
+    }
 
 
 //MAD CAT
@@ -268,7 +345,16 @@ function animateCatMad(cat) {
             props:{x:-500, y:50}, 
             time: 5, 
             ease:"backOut",
-        })
+        }),null, () => {
+            cat.removeFrom();
+            addRandomCat();
+        };
+        cat.on("animationend", () => {
+            if (cat.stage) {
+                cat.removeFrom(); 
+                addRandomCat(); 
+            }
+        });
     }
 }
 
@@ -277,12 +363,8 @@ function animateCatMad(cat) {
 
 
 
-
-
-
 }
-
-
+}
 </script>
     <meta name="viewport" content="width=device-width, user-scalable=no" />
 </head>
