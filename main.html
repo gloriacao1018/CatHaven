@@ -29,7 +29,6 @@ let score = new Scorer({
 
 const timer = new Timer({
     startPaused:true,
-    time:2,
     font:"BabyDoll.ttf",
     backgroundColor:orange,
     borderColor: black,
@@ -79,6 +78,8 @@ loop(10, () => {
     });
 });
 
+let finalScore;
+
 function checkItem(item,i) {
     // cats.forEach(cat => {    
     loop(cats,(cat) =>{
@@ -87,7 +88,6 @@ function checkItem(item,i) {
             if (cat.accepting.includes(item.name)) {
             
             item.dispose();
-            // zog(item);
             zog(item.name);
             
             // cat.accepting = cat.accepting.filter(acceptedItem => acceptedItem !== item.name);
@@ -98,11 +98,12 @@ function checkItem(item,i) {
 
             if (cat.accepting.length === 0) {
                 animateCatOffScreen(cat.pic);
-                score.score++
+                score.score++;
+                finalScore = score.score;
+                zog(finalScore);
                 zog(score.score);
             }      
         }else{
-            // zog(item);
             zog(item.name);
             zog(cat.accepting);
             item.animate({ x: item.startX, y: item.startY }, 0.3);
@@ -134,7 +135,6 @@ const winningComments = {
 };
 
 let comment = "";
-let finalScore = score.score;
 
 function displayWinningComment(finalScore) {
     
@@ -221,6 +221,7 @@ function winningPage(){
 }
 
 timer.on("complete", () => {
+    zog(finalScore);
     setTimeout(() => {
     displayWinningComment(finalScore);
     winningPage();
