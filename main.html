@@ -66,17 +66,30 @@ const meow = new Aud({
         maxNum:1
 });
 //CATBIBLE------------------------------------------------------------------------
-const pages = [
-    new Page("1.png"),
-    new Page("2.png"),
-    new Page("3.png"),
-    new Page("4.png"),
-    new Page("5.png"),
-    new Page("6.png")
-];
+const page1 = new Page("1.png");
+const page2 = new Page("2.png");
+const page3 = new Page("3.png");
+const page4 = new Page("4.png");
+const page5 = new Page("5.png");
+const page6 = new Page("6.png");
+const pages = [page1, page2, page3, page4, page5, page6];
 
-// Create a Book with the array of Page instances
-const catbible = new Book(pages).center().top();
+const book = new Book(700, 500, pages)
+
+const bookCont = new Container(70,70).pos(150,50,RIGHT, TOP);
+const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1)   
+    .tap(()=>{
+        flip.play();
+        book.center().addTo(S)
+});
+
+S.on("stagemousedown", (e) => {
+    if (S.contains(book)) {
+    close.play()
+    book.removeFrom(S); 
+    }
+});
+
 
 //CATS-----------------------------------------------------------------------------
 // let spotA = new Container(200, 200).pos(50, 150, LEFT, TOP).outline();
@@ -191,7 +204,6 @@ function animateCatOffScreen(cat) {
             {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
             {props:{x:-500, y:50}, time: 5, ease:"backOut"}
         ]
-    // cat.animate({x:-500, y:50}, 5, "backOut")
     });
 };
 
