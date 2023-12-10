@@ -1,69 +1,168 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8" />
-<title>ZIM - Code Creativity</title>
+    <meta charset="utf-8" />
+    <title>CAT CAFE DEMO</title>
 
-<!-- zimjs.com - JavaScript Canvas Framework -->
-<script type=module>
+    <!-- zimjs.com - JavaScript Canvas Framework -->
+    <script type=module>
 
-import zim from "https://zimjs.org/cdn/015/zim";
-const assets = ["blackcat.png","tuxcat.png","orangecat.png","whitecat.png"]
-const path = "assets/";
+import zim from "https://zimjs.com/cdn/015/zim_game";
+
+const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milk.png","food.png","brush.png","background.png"];
+const path = "assets/"
+
 // See Docs under Frame for FIT, FILL, FULL, and TAG
 new Frame(FIT, 1024, 768, light, dark, ready, assets, path);
 function ready() {
-    // let heart = 5;    
-    // const background = new Container(W,H);
 
-    // let spotA = new Container(150,200,200,200).center().outline();
-    // let spotB = new Container(150,200, 400, 400).center().outline();
-    // let spotC = new Container(150,200).center().outline();
+const background = new Pic("background.png").sca(.85).center();
+
+let score = new Scorer({
+    font:"BabyDoll.ttf",
+    backgroundColor:orange,
+    borderColor: black,
+    borderWidth:3,
+    width:60
+}).pos(50,50,RIGHT);
+
+const timer = new Timer({
+    startPaused:true,
+    font:"BabyDoll.ttf",
+    backgroundColor:orange,
+    borderColor: black,
+    borderWidth:3,
+    width:60
+}).pos(50,50);
+
+S.on("stagemousedown", ()=>{              
+    timer.start();    
+}, null, true); 
+
+S.update();
+
+const blackcat = new Pic("blackcat.png").pos(50, 150, LEFT, TOP);
+const orangecat = new Pic("orangecat.png").pos(100, 150, RIGHT, TOP);
+const whitecat = new Pic("whitecat.png").pos(50, 150, LEFT, BOTTOM);
+const tuxcat = new Pic("tuxcat.png").pos(50, 150, RIGHT, BOTTOM);
+
+let cats = [
+    { pic: blackcat, accepting: ["milk", "food", "brush"] },
+    { pic: orangecat, accepting: ["milk", "food", "brush"] },
+    { pic: whitecat, accepting: ["milk", "food", "brush"] },
+    { pic: tuxcat, accepting: ["milk", "food", "brush"] }
+];
+
+const milkC = new Container(100, 100).pos(100, 100, LEFT, BOTTOM);
+const foodC = new Container(100, 100).pos(0, 50, CENTER, BOTTOM);
+const brushC = new Container(100, 100).pos(150, 50, RIGHT, BOTTOM);
+
+let item;
+
+loop(10, () => {
+    let milk = new Pic("milk.png").addTo(milkC).scaleTo(milkC).drag();
+    milk.name="milk";
+    let food = new Pic("food.png").addTo(foodC).scaleTo(foodC).drag();
+    food.name="food";
+    let brush = new Pic("brush.png").addTo(brushC).scaleTo(brushC).drag();
+    brush.name="brush";
+    S.update();
+
+    // [milk, food, brush].forEach(item => {
+        loop([milk, food, brush],item=>{
+        item.startX = item.x;
+        item.startY = item.y;
+        item.on("pressup", () => checkItem(item));
+        S.update();
+    });
+});
+
+function checkItem(item,i) {
+    // cats.forEach(cat => {    
+    loop(cats,(cat) =>{
+        if (item.hitTestBounds(cat.pic)) {
+            zog(cat.accepting);
+            if (cat.accepting.includes(item.name)) {
+            
+            item.dispose();
+            // zog(item);
+            zog(item.name);
+            
+            // cat.accepting = cat.accepting.filter(acceptedItem => acceptedItem !== item.name);
+            cat.accepting = cat.accepting.filter(i => i !== item.name);
+            zog(cat.accepting);
+
+            S.update();
+
+            if (cat.accepting.length === 0) {
+                animateCatOffScreen(cat.pic);
+                score.score++
+                zog(score.score);
+            }      
+        }else{
+            // zog(item);
+            zog(item.name);
+            zog(cat.accepting);
+            item.animate({ x: item.startX, y: item.startY }, 0.3);
+        } 
+        }else {            
+            item.animate({ x: item.startX, y: item.startY }, 0.3);
+        }
+    });
+}
+
+function animateCatOffScreen(cat) {
+    cat.animate({
+        props:[
+            {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
+            {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
+            {props:{x:-500, y:50}, time: 5, ease:"backOut"}
+        ]
+    })
+};
+
+}
+
+const winningComments = {
+    0: "Looks like you've got a bit of a 'cat-astrophe' on your hands! Remember, practice makes 'purr-fect'!",
+    1: "You're just starting to 'paw' your way to success! Keep going and you'll be the cat's meow in no time!",
+    5: "You're getting your 'claws' into it! Keep up the good work and you'll be a 'purr'-fessional soon!",
+    10: "Look at you, a 'whisker' away from being a top cat carer! Keep those treats coming!",
+    15: "You're the cat's 'whiskers'! Just a little more and you'll be the ultimate cat companion!",
+    20: "You're the 'purr-fect' cat caretaker! All the kitties are 'feline' good thanks to your expert care!",
+    "20+": "You're a legendary cat whisperer! Even the most finicky felines find you 'paw-some'!"
+};
 
 
-    let orangecat = new Pic ("orangecat.png");
-    let whitecat = new Pic ("whitecat.png");
-    let blackcat = new Pic ("blackcat.png");
-    let tuxcat = new Pic ("tuxcat.png");
-
-    let cats = [orangecat, whitecat, blackcat, tuxcat];
-
-    function getRandomCat() {
-        let randomIndex = Math.floor(Math.random() * cats.length);
-        return cats[randomIndex];
+function displayWinningComment(score) {
+    let comment = "";
+    if (score === 0) {
+        comment = winningComments[0];
+    } else if (score >= 1 && score <= 5) {
+        comment = winningComments[1];
+    } else if (score >= 6 && score <= 10) {
+        comment = winningComments[5];
+    } else if (score >= 11 && score <= 15) {
+        comment = winningComments[10];
+    } else if (score >= 16 && score <= 20) {
+        comment = winningComments[15];
+    } else if (score > 20) {
+        comment = winningComments["20+"];
     }
+    // Display the comment to the player
+    zog(comment);
+}
 
-    let randomCat = getRandomCat();
-    randomCat.addTo();
+// timer.on("complete", () => {
+//     displayWinningComment(score.score);
+// });
 
-    new Circle(70,red).pos(100,100,CENTER, BOTTOM).drag();
-    new Circle(70,green).pos(-100,100,CENTER, BOTTOM).drag();
-    new Circle(70,orange).pos(-300,100,CENTER, BOTTOM).drag();
-
-
-    const basket = new Container(W,H).center();
-    // loop(10, ()=>{
-    //     new Circle(70,blue).pos(300,100,CENTER, BOTTOM).drag();
-    // })
-    // loop(10, () => {
-    //     new Circle(70,blue).addTo(basket).pos(300,100,CENTER, BOTTOM).drag()
-    //       });
-    //       basket.loop((milk) => {
-    //         if (milk.hitTestCircleRect(cat1)) {
-    //           zog("!");
-    //         }
-    //       });
-
-
-    
-
-
-    
-        
-} // end ready
 
 </script>
-<meta name="viewport" content="width=device-width, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, user-scalable=no" />
 </head>
+
 <body></body>
+
 </html>
