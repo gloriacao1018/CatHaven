@@ -21,6 +21,10 @@ function ready() {
 
 
 //OPENING -----------------------------------------------------------------------
+let title;
+let titleanimate;
+let rules;
+let rules2;
 
 part1();
 function part1 (){
@@ -28,11 +32,11 @@ function part1 (){
         font: "BabyDoll.ttf"
     }
 
-    let title = new Container(W,H).center();
+    title = new Container(W,H).center();
 
     new Pic("title.png").addTo(title).center().bot();
 
-    new Pic("titleanimate.png").addTo(title).center().animate({
+    titleanimate = new Pic("titleanimate.png").addTo(title).center().animate({
         props:{y:10},
         loop:true,
         rewind:true
@@ -44,24 +48,25 @@ function part1 (){
         label: "PLAY",
         backgroundColor:"#A44B43",
 
-    })  .addTo(title)
+    })  
         .pos(0, 50, CENTER, CENTER, title)
         .hov()
         .top()
         .tap(part2);
         
-        play.on("mousedown", ()=>{   
+    play.on("click", ()=>{   
         new Aud("backing.mp3").play({volume:.1, loop:true});
     }, null, true);
 
-        S.update();
+
+    S.update();
 };//end part1
 
 function part2 () {
-   let rules = new Container(W,H).center();
+   rules = new Container(W,H).center();
    new Pic("rules.png").addTo(rules).center().bot().alp(0).animate({alpha: 1}, 1);
 
-   rules.on("mousedown",()=>{
+   rules.on("click",()=>{
     const next = new Button({
         width:120, 
         height:60,
@@ -69,30 +74,42 @@ function part2 () {
         backgroundColor:"#A44B43",
        }).pos(100, 100, RIGHT, BOTTOM, rules).tap(part3);
    });
-    S.update();
+        S.update();
+
 
 };//end part2
 
 function part3 () {
-    let rules2 = new Container(W,H).center();
+    rules2 = new Container(W,H).center();
    new Pic("rules2.png").addTo(rules2).center().bot().alp(0).animate({alpha: 1}, 1);
 
-   rules2.on("mousedown",()=>{
+   rules2.on("click",()=>{
     const begin = new Button({
         width:120, 
         height:60,
         label: "next",
         backgroundColor:"#A44B43",
        }).pos(100, 100, RIGHT, BOTTOM, rules2).tap(part4);
-   })
-   
-    
+      
+   });
 
+
+   S.update();
 };//end part3
+
 
 //BACKGROUND ELEMENTS-------------------------------------------------------------
 function part4 () {
+title.removeFrom();
+titleanimate.removeFrom()
+rules.removeFrom();
+rules2.removeFrom();
+
+S.update();
+//remove all previous containers
+
 const background = new Pic("background.png").sca(.85).center();
+S.update();
 
 let score = new Scorer({
     font:"BabyDoll.ttf",
@@ -190,15 +207,17 @@ const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1
         });
     });
 
-//CATS-----------------------------------------------------------------------------
-const blackcat = new Pic("blackcat.png").addTo(background).pos(50, 150, LEFT, TOP);
-const orangecat = new Pic("orangecat.png").addTo(background).pos(100, 150, RIGHT, TOP);
-const whitecat = new Pic("whitecat.png").addTo(background).pos(50, 150, LEFT, BOTTOM);
-const tuxcat = new Pic("tuxcat.png").addTo(background).pos(50, 150, RIGHT, BOTTOM);
+
+//CATS INITIALIZATION------------------------------------------------------------------
+    let orangecat = new Pic ("orangecat.png").sca(0.5);
+    let whitecat = new Pic ("whitecat.png").sca(0.5);
+    let blackcat = new Pic ("blackcat.png").sca(0.5);
+    let tuxcat = new Pic ("tuxcat.png").sca(0.5);
+
 
 //CAT TIMER-----------------------------------------------------------------------------
 
-let blackTimer = new Timer({
+    let blackTimer = new Timer({
         time: 15,
         font:"BabyDoll.ttf",
         backgroundColor:white,
@@ -232,67 +251,159 @@ let blackTimer = new Timer({
 
         let catTimers = [blackTimer, orangeTimer, whiteTimer,tuxTimer];
 
+
+//LOOP RAND CATS-----------------------------------------------------------------------------
+let timerInterval;
+
+function startGame() {
+    timerInterval = setInterval(function () {
+        addRandomCat();
+
+        if (timer <= 0) {
+            clearInterval(timerInterval);
+            zog("Game over!");
+        }
+    }, 1); // Adjust the interval based on your requirements
+}
+//ADD RANDOM CATS-----------------------------------------------------------------------------
+    let spotA = new Rectangle(150, 150, clear).loc(500,400).outline()..reg(CENTER);
+    let spotB = new Rectangle(150, 150, clear).loc(150,500).outline().reg(CENTER);
+    let spotC = new Rectangle(150, 150, clear).loc(900,450).outline().reg(CENTER);
+    let spotD = new Rectangle(150, 150, clear).loc(700,450).outline().reg(CENTER);
+    
+    let spots = [spotA, spotB, spotC, spotD];
+
+    let initialItems = [
+        ["milk", "brush", "food"],
+        ["food", "milk", "catnip"],
+        ["catnip", "milk", "toy"],
+        ["brush", "catnip", "food"]
+    ];
+
+    let cats = [
+    { cat: blackcat, satisfaction: 0, accepting: [...initialItems[0]], spot: null , catTimers:blackTimer },
+    { cat: orangecat, satisfaction: 0, accepting: [...initialItems[1]], spot: null , catTimers:orangeTimer},
+    { cat: whitecat, satisfaction: 0, accepting: [...initialItems[2]], spot: null , catTimers:whiteTimer},
+    { cat: tuxcat, satisfaction: 0, accepting: [...initialItems[3]], spot: null ,catTimers:tuxTimer }
+    ];
+
+function addRandomCat() {
+
+        // After adding a cat, set a timeout to add another cat after a random delay
+        let delay = Math.random() * 4000 + 1000; // Random delay between 1-5 seconds
+        setTimeout(addRandomCat, delay);
+    }
+
+    // Start adding cats 2 seconds after the game starts
+    setInterval(addRandomCat, 2000);
+
+    function getRandomSpot() {
+    let availableSpots = spots.filter(spot => !spot.occupied);
+    if (availableSpots.length === 0) {
+        return null; 
+    }
+        let randomIndex = Math.floor(Math.random() * availableSpots.length);
+        return availableSpots[randomIndex];
+    }
+
+    function getRandomCat() {
+        let randomIndex = Math.floor(Math.random() * cats.length);
+        return cats[randomIndex];
+    }
+    function addRandomCat() {
+    let randomSpot = getRandomSpot();
+    if (!randomSpot) {
+        return; // No available spot, so don't add a new cat
+    }
+    randomSpot.occupied = true;
+    let randomCat = getRandomCat();
+    randomCat.spot = randomSpot; 
+    let spotCenterX = randomSpot.x + randomSpot.width / 2;
+    let spotCenterY = randomSpot.y + randomSpot.height / 2;
+    let catCenterX = spotCenterX - randomCat.cat.width / 2;
+    let catCenterY = spotCenterY - randomCat.cat.height / 2;
+    randomCat.cat.x = catCenterX;
+    randomCat.cat.y = catCenterY;
+    randomCat.cat.addTo();
+    randomCat.cat.on("satisfied", () => {
+        if (randomCat.satisfaction >= 3) {
+            zog(`Removing ${randomCat.cat} because satisfaction is ${randomCat.satisfaction}`);
+            randomCat.cat.removeFrom();
+            randomSpot.occupied = false;
+        }
+    });
+    };//end random cat
+
+    startGame();
+
 //ITEMS TO CAT---------------------------------------------------------------------
 
     let milk;
     let food;
-    let toy;
     let brush;
+    let catnip
+    let toy;
 
+    const item1 = new Container(100, 100).loc(103, 578);
+    const item2 = new Container(100, 100).loc(306, 608);
+    const item3 = new Container(100, 100).loc(797, 624);
+    const item4 = new Container(100, 100).loc(462, 606);
+    const item5 = new Container(100, 100).loc(662, 602);
 
-const item1 = new Container(100, 100).pos(100, 100, LEFT, BOTTOM);
-const item2 = new Container(100, 100).pos(0, 50, CENTER, BOTTOM);
-const item3 = new Container(100, 100).pos(150, 50, RIGHT, BOTTOM);
+    loop(30, () => {
+        milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
+        milk.name = "milk";
+        food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
+        food.name = "food";
+        brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
+        brush.name = "brush";
+        catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
+        catnip.name = "catnip";
+        toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
+        toy.name = "toy";
 
-let cats = [
-    { cat: blackcat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:blackTimer },
-    { cat: orangecat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:orangeTimer},
-    { cat: whitecat, satisfaction: 0, accepting: ["milk", "food", "brush"], catTimers:whiteTimer},
-    { cat: tuxcat, satisfaction: 0, accepting: ["milk", "food", "brush"],catTimers:tuxTimer }
-];
-
-loop(10, () => {
-    milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
-    food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
-    brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
-
-    [milk, food, brush].forEach(item => {
-        item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY }; 
-        item.startPos = { x: item.x, y: item.y }; 
-        item.on("pressup", () => {
-            checkItem(item);
+        [milk, food, brush,catnip,toy].forEach(item => {
+            item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY }; 
+            item.startPos = { x: item.x, y: item.y }; 
+            item.on("pressup", () => checkItem(item));
             pickup.play();
-        })
+        });
     });
-});
-
-function checkItem(item) {
-    cats.forEach(catInfo => {
-        if (item.hitTestBounds(catInfo.cat) && catInfo.accepting > 0) {
             
-            catInfo.satisfaction++;
-            catInfo.accepting--;
 
 
-            item.dispose();
+    function checkItem(item) {
+        cats.forEach((catInfo, index) => {
+            if (item.hitTestBounds(catInfo.cat)) {
+                if (item.name && typeof item.name === 'string' && catInfo.accepting.includes(item.name)) {
+                    // Remove the item from the accepting array
+                    catInfo.accepting = catInfo.accepting.filter(i => i !== item.name);
 
-            zog(`Cat Satisfaction: ${catInfo.satisfaction}`);
-            zog(`Cat Accepting: ${catInfo.accepting}`);
+                    // Increase satisfaction
+                    catInfo.satisfaction++;
+                    zog(`Increased satisfaction of ${catInfo.cat} to ${catInfo.satisfaction}`);
+
 
       
-            if (catInfo.satisfaction >= 3) {
-                catInfo.catTimers.dispose();
-                //added a dispose
-                animateCatOffScreen(catInfo.cat);
-                score.score++;
-            zog(`Score: ${score}`);
+                    if (catInfo.satisfaction === 3) {
+                        catInfo.cat.dispatchEvent("satisfied");
+                        catInfo.accepting = [...initialItems[index]];
+                        catInfo.catTimers.dispose();
+                        animateCatOffScreen(catInfo.cat);
+                        score.score++;
+                        zog(score.score);
+                    }
+                    item.dispose();
+                } else {
+                    // If the cat is not accepting the item, snap it back to the start position
+                    item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
+                }
+            } else {
+                // If the item is not hitting any cat, snap it back to the start position
+                item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
             }
-        } else {
-            // If the cat is not accepting the item, snap it back to the start position
-            item.animate({ x: item.startPos.x, y: item.startPos.y }, 0.3);
-        }
-    });
-}
+        });
+    };
 
 
 setInterval(() => {
@@ -326,15 +437,31 @@ function animateCatOffScreen(cat) {
     if (!cat.animated) {
         cat.animated = true; 
     meow.play();
-    cat.animate({
-        props:[
-            {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
-            {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
-            {props:{x:-500, y:50}, time: 5, ease:"backOut"}
-        ],
+    cat.animate([
+            { props: { y: cat.y - 20 }, time: 0.5, ease: "bounceIn" },
+            { props: { y: cat.y + 20 }, time: 0.7, ease: "bounceOut" },
+            { props: { x: -500, y: 50 }, time: 5, ease: "backOut" }
+        ], null, () => {
+            // Animation completed, remove the cat
+            cat.removeFrom();
+
+            // Add a new cat after removing the current one
+            addRandomCat();
+            S.update();
+        });
+
+        // Listen for the end of the animation
+        cat.on("animationend", () => {
+            // Check if the cat still exists (it might have been removed manually)
+            if (cat.stage) {
+                cat.removeFrom(); // Remove the cat from the scene
+                addRandomCat(); // Add a new cat
+                S.update();
+            };
         });
     };
 };
+
 
 
 //MAD CAT
@@ -356,7 +483,7 @@ function animateCatMad(cat) {
 
 
 
-
+S.update();
 }//end part4
 //-------------------------------------------------------------------------------------
 }
