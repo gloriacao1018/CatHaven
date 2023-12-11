@@ -17,7 +17,81 @@ const path = "assets/"
 new Frame(FIT, 1024, 768, light, dark, ready, assets, path);
 function ready() {
 
+
+
+
+//OPENING -----------------------------------------------------------------------
+
+part1();
+function part1 (){
+    STYLE = {
+        font: "BabyDoll.ttf"
+    }
+
+    let title = new Container(W,H).center();
+
+    new Pic("title.png").addTo(title).center().bot();
+
+    new Pic("titleanimate.png").addTo(title).center().animate({
+        props:{y:10},
+        loop:true,
+        rewind:true
+    });
+
+    const play = new Button({
+        width:120, 
+        height:60,
+        label: "PLAY",
+        backgroundColor:"#A44B43",
+
+    })  .addTo(title)
+        .pos(0, 50, CENTER, CENTER, title)
+        .hov()
+        .top()
+        .tap(part2);
+        
+        play.on("mousedown", ()=>{   
+        new Aud("backing.mp3").play({volume:.1, loop:true});
+    }, null, true);
+
+        S.update();
+};//end part1
+
+function part2 () {
+   let rules = new Container(W,H).center();
+   new Pic("rules.png").addTo(rules).center().bot().alp(0).animate({alpha: 1}, 1);
+
+   rules.on("mousedown",()=>{
+    const next = new Button({
+        width:120, 
+        height:60,
+        label: "next",
+        backgroundColor:"#A44B43",
+       }).pos(100, 100, RIGHT, BOTTOM, rules).tap(part3);
+   });
+    S.update();
+
+};//end part2
+
+function part3 () {
+    let rules2 = new Container(W,H).center();
+   new Pic("rules2.png").addTo(rules2).center().bot().alp(0).animate({alpha: 1}, 1);
+
+   rules2.on("mousedown",()=>{
+    const begin = new Button({
+        width:120, 
+        height:60,
+        label: "next",
+        backgroundColor:"#A44B43",
+       }).pos(100, 100, RIGHT, BOTTOM, rules2).tap(part4);
+   })
+   
+    
+
+};//end part3
+
 //BACKGROUND ELEMENTS-------------------------------------------------------------
+function part4 () {
 const background = new Pic("background.png").sca(.85).center();
 
 let score = new Scorer({
@@ -34,18 +108,13 @@ const timer = new Timer({
     borderWidth:3,
     width:60}).pos(50,50);
 
-
-    //ADD IN START IMAGE 
-
-    S.on("stagemousedown", ()=>{              
+    background.on("mousedown", ()=>{              
     timer.start();    
     }, null, true); 
 
 S.update();
 //AUDIO---------------------------------------------------------------------------
-S.on("stagemousedown", ()=>{   
-        new Aud("backing.mp3").play({volume:.1, loop:true});
-    }, null, true);
+
 
 const flip = new Aud({
         file:"flip.mp3",
@@ -288,7 +357,8 @@ function animateCatMad(cat) {
 
 
 
-
+}//end part4
+//-------------------------------------------------------------------------------------
 }
 
 
