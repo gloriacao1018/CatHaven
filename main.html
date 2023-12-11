@@ -10,7 +10,7 @@
 
 import zim from "https://zimjs.com/cdn/015/zim_game";
 
-const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "0.png","1.png", "2.png","3.png", "4.png", "5.png"];
+const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "0.png","1.png", "2.png","3.png", "4.png", "5.png", "winning.png"];
 const path = "assets/"
 
 // See Docs under Frame for FIT, FILL, FULL, and TAG
@@ -234,7 +234,7 @@ const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1
         width:60}).addTo(orangecat).pos(135,-10);
 
     let whiteTimer = new Timer({
-        time: 10,
+        time: 12,
         font:"BabyDoll.ttf",
         backgroundColor:white,
         borderColor: black,
@@ -242,7 +242,7 @@ const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1
         width:60}).addTo(whitecat).pos(135,10);
 
     let tuxTimer = new Timer({
-        time: 8,
+        time: 10,
         font:"BabyDoll.ttf",
         backgroundColor:white,
         borderColor: black,
@@ -266,10 +266,10 @@ function startGame() {
     }, 1); // Adjust the interval based on your requirements
 }
 //ADD RANDOM CATS-----------------------------------------------------------------------------
-    let spotA = new Rectangle(150, 150, clear).loc(500,400).outline()..reg(CENTER);
-    let spotB = new Rectangle(150, 150, clear).loc(150,500).outline().reg(CENTER);
-    let spotC = new Rectangle(150, 150, clear).loc(900,450).outline().reg(CENTER);
-    let spotD = new Rectangle(150, 150, clear).loc(700,450).outline().reg(CENTER);
+    let spotA = new Container(150, 150).loc(300,310).outline().reg(CENTER);
+    let spotB = new Container(150, 150).loc(70,390).outline().reg(CENTER);
+    let spotC = new Container(150, 150).loc(500,320).outline().reg(CENTER);
+    let spotD = new Container(150, 150).loc(870,220).outline().reg(CENTER);
     
     let spots = [spotA, spotB, spotC, spotD];
 
@@ -351,15 +351,15 @@ function addRandomCat() {
     const item5 = new Container(100, 100).loc(662, 602);
 
     loop(30, () => {
-        milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
+        milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag().top();
         milk.name = "milk";
-        food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
+        food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag().top();
         food.name = "food";
-        brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
+        brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag().top();
         brush.name = "brush";
-        catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
+        catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag().top();
         catnip.name = "catnip";
-        toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
+        toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag().top();
         toy.name = "toy";
 
         [milk, food, brush,catnip,toy].forEach(item => {
@@ -370,7 +370,7 @@ function addRandomCat() {
         });
     });
             
-
+    let finalScore;
 
     function checkItem(item) {
         cats.forEach((catInfo, index) => {
@@ -391,6 +391,8 @@ function addRandomCat() {
                         catInfo.catTimers.dispose();
                         animateCatOffScreen(catInfo.cat);
                         score.score++;
+                        finalScore = score.score;
+                         zog(finalScore);
                         zog(score.score);
                     }
                     item.dispose();
@@ -478,15 +480,120 @@ function animateCatMad(cat) {
 }
 
 
-
-
-
-
-
 S.update();
+
+//WINNING SCREEN --------------------------------------------------------------------------------------------
+const winningComments = {
+    0: "Looks like you've got a bit of a 'cat-astrophe' on your hands! Remember, practice makes 'purr-fect'!",
+    1: "You're just starting to 'paw' your way to success! Keep going and you'll be the cat's meow in no time!",
+    6: "You're getting your 'claws' into it! Keep up the good work and you'll be a 'purr'-fessional soon!",
+    11: "Look at you, a 'whisker' away from being a top cat carer! Keep those treats coming!",
+    16: "You're the cat's 'whiskers'! Just a little more and you'll be the ultimate cat companion!",
+    21: "You're the 'purr-fect' cat caretaker! All the kitties are 'feline' good thanks to your expert care!",
+    26: "You're a legendary cat whisperer! Even the most finicky felines find you 'paw-some'!"
+};
+
+let comment = "";
+
+function displayWinningComment(finalScore) {
+    
+    if (finalScore === 0) {
+        comment = winningComments[0];
+    } else if (finalScore >= 1 && finalScore <= 5) {
+        comment = winningComments[1];
+    } else if (finalScore >= 6 && finalScore <= 10) {
+        comment = winningComments[6];
+    } else if (finalScore >= 11 && finalScore <= 15) {
+        comment = winningComments[11];
+    } else if (finalScore >= 16 && finalScore <= 20) {
+        comment = winningComments[16];
+    } else if (finalScore >= 21 && finalScore <= 25) {
+        comment = winningComments[21];
+    } else if (finalScore > 25) {
+        comment = winningComments[26];
+    }
+    zog(comment);
+}
+
+function winningPage(){
+
+    new Pic("winning.png").center().alp(0).animate({alpha: 1}, 1);
+
+    new Label({
+        text:"Your final score is",
+        size:60,
+        font:"BabyDoll.ttf",
+    }).centerReg().pos(0,180,CENTER,TOP).alp(0).sca(0).animate({scale:1,alpha:1}, 1.7, "elasticOut",null,null,1);
+
+    const scoreText = new Label({
+        text:finalScore,
+        size:72,
+        backgroundColor:orange,
+        corner:10,
+        font:"BabyDoll.ttf",
+    }).centerReg().pos(0,280,CENTER,TOP).alp(0).sca(0).animate({scale:1,alpha:1}, 1.7, "elasticOut",null,null,2);
+
+    new Label({
+        text:comment,
+        shadowColor:white,
+        labelWidth:800,
+        labelHeight:180,
+        align:CENTER,
+        valign:MIDDLE,
+        font:"BabyDoll.ttf",
+        splitWords:true
+    }).pos(0,180,CENTER,BOTTOM).alp(0).animate({alpha: 1}, 1,null,null,null,3);
+
+    STYLE = {
+		font:"BabyDoll.ttf", 
+		size:70, 
+		color:yellow,
+		bold:true,
+		letterSpacing:8,
+		lineSpacing:50,
+		lineAlign:CENTER
+	};
+
+    const text = new LabelLetters("meow")
+		.centerReg()
+        .pos(20,100,LEFT,TOP)
+		.sca(0)
+		.animate({scale:1}, 3, "elasticOut",null,null,4);
+
+	const colors = series(red,blue,purple,green,pink);
+
+	text.loop(letter=>{
+		letter.sha(colors().toAlpha(.5),8,8,0).wiggle("rotation",0,5,10,.2,.4);
+	});
+
+    const text2 = new LabelLetters("purr")
+		.centerReg()
+        .pos(20,120,RIGHT,BOTTOM)
+		.sca(0)
+		.animate({scale:1}, 3, "elasticOut",null,null,4); 
+	
+    text2.loop(letter=>{
+		letter.sha(colors().toAlpha(.5),8,8,0).wiggle("rotation",0,5,10,.2,.4);
+	});
+    
+    STYLE = {};
+}
+
+timer.on("complete", () => {
+    zog(finalScore);
+    setTimeout(() => {
+    displayWinningComment(finalScore);
+    winningPage();
+    }, 2); 
+});
+
+
+}
+
 }//end part4
 //-------------------------------------------------------------------------------------
-}
+
+
 
 
 </script>
