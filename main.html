@@ -42,17 +42,116 @@ S.on("stagemousedown", ()=>{
 
 S.update();
 
-const blackcat = new Pic("blackcat.png").pos(50, 150, LEFT, TOP);
-const orangecat = new Pic("orangecat.png").pos(100, 150, RIGHT, TOP);
-const whitecat = new Pic("whitecat.png").pos(50, 150, LEFT, BOTTOM);
-const tuxcat = new Pic("tuxcat.png").pos(50, 150, RIGHT, BOTTOM);
+let spotA = new Container(150, 150).loc(300,310).outline().reg(CENTER);
+let spotB = new Container(150, 150).loc(70,390).outline().reg(CENTER);
+let spotC = new Container(150, 150).loc(500,320).outline().reg(CENTER);
+let spotD = new Container(150, 150).loc(870,220).outline().reg(CENTER);
+    
+let spots = [spotA, spotB, spotC, spotD];
+
+// const blackcat = new Pic("blackcat.png").pos(50, 150, LEFT, TOP);
+// const orangecat = new Pic("orangecat.png").pos(100, 150, RIGHT, TOP);
+// const whitecat = new Pic("whitecat.png").pos(50, 150, LEFT, BOTTOM);
+// const tuxcat = new Pic("tuxcat.png").pos(50, 150, RIGHT, BOTTOM);
+
+const blackcat = new Pic("blackcat.png");
+const orangecat = new Pic("orangecat.png");
+const whitecat = new Pic("whitecat.png");
+const tuxcat = new Pic("tuxcat.png");
+
+// let blackTimer = new Timer({
+//         time: 15,
+//         font:"BabyDoll.ttf",
+//         backgroundColor:white,
+//         borderColor: black,
+//         borderWidth:3,
+//         width:60
+//     }).addTo(blackcat).pos(130,15);
+//     let orangeTimer = new Timer({
+//         time: 15,
+//         font:"BabyDoll.ttf",
+//         backgroundColor:white,
+//         borderColor: black,
+//         borderWidth:3,
+//         width:60
+//     }).addTo(orangecat).pos(135,-10);
+
+//     let whiteTimer = new Timer({
+//         time: 12,
+//         font:"BabyDoll.ttf",
+//         backgroundColor:white,
+//         borderColor: black,
+//         borderWidth:3,
+//         width:60
+//     }).center(whitecat);
+
+//     let tuxTimer = new Timer({
+//         time: 10,
+//         font:"BabyDoll.ttf",
+//         backgroundColor:white,
+//         borderColor: black,
+//         borderWidth:3,
+//         width:60
+//     }).addTo(tuxcat).pos(135,5);
+
+// let catTimers = [blackTimer, orangeTimer, whiteTimer,tuxTimer];
 
 let cats = [
-    { pic: blackcat, accepting: ["milk", "food", "brush"] },
-    { pic: orangecat, accepting: ["milk", "food", "brush"] },
-    { pic: whitecat, accepting: ["milk", "food", "brush"] },
-    { pic: tuxcat, accepting: ["milk", "food", "brush"] }
+    { pic: blackcat, accepting: ["milk", "food", "brush"],time:15},
+    { pic: orangecat, accepting: ["milk", "food", "brush"],time:15},
+    { pic: whitecat, accepting: ["milk", "food", "brush"],time:12},
+    { pic: tuxcat, accepting: ["milk", "food", "brush"],time:10}
 ];
+
+function placeRandomCat(spots) {
+    // zog("placeRandomCat called for spot: ", spots);
+    let randomCatData = pluck(cats);
+
+    let catsPic = ["blackcat.png","orangecat.png","whitecat.png","tuxcat.png"];
+    let randomCatFile = pluck(catsPic); 
+    let randomCatPic = new Pic(randomCatFile);
+
+    let randomCatTimer = new Timer({
+        time: randomCatData.time,
+        font:"BabyDoll.ttf",
+        backgroundColor:white,
+        borderColor: black,
+        borderWidth:3,
+        width:60
+    }).center();
+
+    randomCatPic.addTo(spots).scaleTo(spots);
+    // randomCatTimer.addTo(randomCatPic).centerReg();
+    randomCatTimer.addTo(spots);
+    randomCatTimer.pos(randomCatPic.x, randomCatPic.y + randomCatPic.height); 
+    zog("Timer set for: " + randomCatData.time + " seconds");
+    
+
+    // 设置猫离开的计时器
+    let catTimers = setTimeout(() => {
+        zog("Timer finished, removing cat and timer");
+        // 猫离开的逻辑
+        // spot.removeChild(randomCatPic);
+        randomCatPic.removeFrom(spots);
+        randomCatTimer.removeFrom(spots);
+        // 等待3秒后放置新的猫
+        setTimeout(() => placeRandomCat(spots), rand(1000,3000));
+    }, randomCatData.time*1000); // 使用猫的计时器时长
+    zog(randomCatData.time*1000);
+
+    // 如果猫被满足，清除计时器并立即触发离开动作
+    // randomCatPic.on("click", () => {
+    //     clearTimeout(catTimers);
+    //     // spot.removeChild(randomCatPic);
+    //     randomCatPic.removeFrom(spots);
+    //     setTimeout(() => placeRandomCat(spots), 3);
+    // });
+}
+
+placeRandomCat(spotA);
+placeRandomCat(spotB);
+placeRandomCat(spotC);
+placeRandomCat(spotD);
 
 const milkC = new Container(100, 100).pos(100, 100, LEFT, BOTTOM);
 const foodC = new Container(100, 100).pos(0, 50, CENTER, BOTTOM);
