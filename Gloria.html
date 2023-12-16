@@ -10,7 +10,7 @@
 
 import zim from "https://zimjs.com/cdn/015/zim_game";
 
-const assets = ["rules.png","rules2.png","BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "0.png","1.png", "2.png","3.png", "4.png", "5.png", "winning.png"];
+const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "0.png","1.png", "2.png","3.png", "4.png", "5.png", "winning.png"];
 const path = "assets/"
 
 // See Docs under Frame for FIT, FILL, FULL, and TAG
@@ -18,550 +18,560 @@ new Frame(FIT, 1024, 768, light, dark, ready, assets, path);
 function ready() {
 
 //OPENING -----------------------------------------------------------------------
-STYLE = {
-    font: "BabyDoll.ttf",
-};
+    function showPart1() {
+        let part1 = new Container(W, H).center();
+        let title = new Pic("title.png").center().addTo(part1);
 
-let part1 = new Container(W, H).center();
-new Pic("title.png").center().addTo(part1);
+        STYLE = {
+            font: "BabyDoll.ttf",
+        };
 
-let titleanimate = new Pic("titleanimate.png")
-    .center()
-    .animate({
-        props: { y: 10 },
-        loop: true,
-        rewind: true,
+        let titleanimate = new Pic("titleanimate.png")
+            .center()
+            .animate({
+                props: { y: 10 },
+                loop: true,
+                rewind: true,
+            })
+            .addTo(part1);
+
+        let play = new Button({
+            width: 120,
+            height: 60,
+            label: "PLAY",
+            backgroundColor: "#A44B43",
+        })
+            .pos(0, 50, CENTER, CENTER)
+            .hov()
+            .top()
+            .addTo(part1);
+
+        play.on("click", () => {
+            new Aud("backing.mp3").play({ volume: 0.1, loop: true });
+            part1.animate({ alpha: 0 }, 1, null, () => {
+                part1.dispose();
+                showPart2();
+            });
+        });
+
+        S.update();
+    }
+
+    showPart1();
+
+
+
+    function showPart2() {
+        let part2 = new Container(W, H).center();
+        let rules = new Pic("rules.png").center().addTo(part2);
+
+        part2.animate({ alpha: 1 }, 2, null, () => {
+            let next = new Button({
+                width: 120,
+                height: 60,
+                label: "next",
+                backgroundColor: "#A44B43",
+            })
+                .pos(100, 100, RIGHT, BOTTOM)
+                .addTo(part2);
+            
+            next.on("click", () => {
+                part2.animate({ alpha: 0 }, 1, null, () => {
+                    part2.dispose();
+                    showPart3();
+                });
+            });
+
+        });
+    }
+
+
+    function showPart3() {
+        let part3 = new Container(W, H).center();
+        let rules2 = new Pic("rules2.png").center().addTo(part3);
+        
+        part3.animate({ alpha: 1 }, 2, null, () => {
+            let begin = new Button({
+                width: 120,
+                height: 60,
+                label: "next",
+                backgroundColor: "#A44B43",
+            })
+                .pos(100, 100, RIGHT, BOTTOM)
+                .addTo(part3);
+            
+            begin.on("click", () => {
+                    part3.animate({ alpha: 0 }, .3, null, () => {
+                    part3.dispose();
+                    showPart4();
+                });
+            });
+
+        });
+    }
+    S.update();
+
+
+    //Main Game-----------------------------------------------------------------------
+    function showPart4() {
+        let part4 = new Container(W, H).center();
+        const background = new Pic("background.png").sca(.85).center().addTo(part4);
+    
+        let timer;
+        let finalScore;
+
+        let score = new Scorer({
+            font:"BabyDoll.ttf",
+            backgroundColor:orange,
+            borderColor: black,
+            borderWidth:3,
+            width:60
+        }).pos(50,50,RIGHT);
+
+        timer = new Timer({
+            startPaused:true,
+            font:"BabyDoll.ttf",
+            backgroundColor:yellow,
+            borderColor: black,
+            borderWidth:3,
+            width:60
+        }).pos(50,50);
+
+        S.on("stagemousedown", ()=>{              
+            timer.start();    
+        }, null, true);
+
+        S.update();
+
+    //AUDIO---------------------------------------------------------------------------
+
+        const flip = new Aud({
+            file:"flip.mp3",
+            volume:.1,
+            interrupt:"none",
+            maxNum:1
+        });
+
+        const close = new Aud({
+            file:"close.mp3",
+            volume:.1,
+            interrupt:"none",
+            maxNum:1
+        });
+
+        const pickup = new Aud({
+            file:"pickup.mp3",
+            volume:.1,
+            interrupt:"none",
+            maxNum:1
+        });
+
+        const meow = new Aud({
+            file:"meow.mp3",
+            volume:.1,
+            interrupt:"none",
+            maxNum:1
+        });
+
+        const angry = new Aud({
+            file:"angry.mp3",
+            volume:.1,
+            interrupt:"none",
+            maxNum:1
+        });
+
+    //CATBIBLE------------------------------------------------------------------------
+        let closeBook;
+
+        const page1 = new Page({color: "#EFE2CF"});
+        page1.content = new Pic("0.png").addTo(page1).pos(-10,0,CENTER,LEFT,page1);
+
+        const page2 = new Page({color: "#EFE2CF"});
+        page2.content = new Pic("1.png").addTo(page2).pos(340,0,CENTER,RIGHT, page1);
+
+        const page3 = new Page({color: "#EFE2CF"});
+        page3.content = new Pic("2.png").addTo(page3).pos(-10,0,CENTER,LEFT,page3);
+
+        const page4 = new Page({color: "#EFE2CF"});
+        page4.content = new Pic("3.png").addTo(page4).pos(340,0,CENTER,RIGHT, page3);
+
+        const page5 = new Page({color: "#EFE2CF"});
+        page5.content = new Pic("4.png").addTo(page5).pos(-10,0,CENTER,LEFT,page5);
+
+        const page6 = new Page({color: "#EFE2CF"});
+        page6.content = new Pic("5.png").addTo(page6).pos(340,0,CENTER,RIGHT, page5);
+
+        const pages = [page1, page2, page3, page4, page5];
+
+        const book = new Book(700, 500, pages)
+
+        const bookCont = new Container(70,70).pos(150,50,RIGHT, TOP);
+        const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1)   
+            .tap(()=>{
+                flip.play();
+                book.center().addTo(S);
+                closeBook = new Button(40,38,"x",red).pos(170,145, RIGHT, TOP);
+                closeBook.tap(()=>{
+                    if (S.contains(book)) {
+                        close.play()
+                        book.removeFrom(S);
+                        closeBook.removeFrom()
+                    }
+                });
+            });
+
+    //ADD RANDOM CATS-----------------------------------------------------------------------------
+        let spotA = new Container(100, 100).loc(145, 478).outline().reg(CENTER);
+        let spotB = new Container(100, 100).loc(284, 476).outline().reg(CENTER);
+        let spotC = new Container(100, 100).loc(410, 476).outline().reg(CENTER);
+        let spotD = new Container(100, 100).loc(533, 475).outline().reg(CENTER);
+        let spotE = new Container(100, 100).loc(633,476).outline().reg(CENTER);
+
+        let spots = [spotA, spotB, spotC, spotD, spotE];
+
+
+
+        let activeCats = [];
+
+        loop(5, () => {
+            // let color = pluck(["black", "orange", "white", "tux"]);
+            // generateRandomCat(color, spots);
+        
+    
+    function generateRandomCat(color, spots) {
+
+        let catData = generateCatData(color);
+    
+    let catTimer = new Timer({
+        time: catData.time,
+        font: "BabyDoll.ttf",
+        backgroundColor: white,
+        borderColor: black,
+        borderWidth: 3,
+        width: 60
     })
-    .addTo(part1);
+        .addTo(spots)
+        .pos(catPic.x, catPic.y + catPic.height);
 
-let play = new Button({
-    width: 120,
-    height: 60,
-    label: "PLAY",
-    backgroundColor: "#A44B43",
-})
-    .pos(0, 50, CENTER, CENTER)
-    .hov()
-    .top()
-    .addTo(part1);
-
-play.on("click", () => {
-    new Aud("backing.mp3").play({ volume: 0.1, loop: true });
-    part1.animate({ alpha: 0 }, .6, null, () => {
-        part1.dispose();
-        showPart2();
-    });
-});
-
-function showPart2() {
-    let part2 = new Container(W, H).center();
-    let rules = new Pic("rules.png").center().addTo(part2);
-
-    part2.animate({ alpha: 1 }, 2, "fade in", () => {
-        let next = new Button({
-            width: 120,
-            height: 60,
-            label: "next",
-            backgroundColor: "#A44B43",
-        })
-            .pos(100, 100, RIGHT, BOTTOM)
-            .addTo(part2);
-        
-        next.on("click", () => {
-            part2.animate({ alpha: 0 }, .6, null, () => {
-                part2.dispose();
-                showPart3();
-            });
-        });
-
-    });
+        function generateCatPicture(pics, spots) {
+    let catPic = new Pic(pluck(pics, true)).addTo(spots).scaleTo(spots);
+    return catPic;
 }
 
 
-function showPart3() {
-    let part3 = new Container(W, H).center();
-    let rules2 = new Pic("rules2.png").center().addTo(part3);
-    
-    part3.animate({ alpha: 1 }, 2, "fade in", () => {
-        let begin = new Button({
-            width: 120,
-            height: 60,
-            label: "next",
-            backgroundColor: "#A44B43",
-        })
-            .pos(100, 100, RIGHT, BOTTOM)
-            .addTo(part3);
-        
-        begin.on("click", () => {
-                part3.animate({ alpha: 0 }, .6, null, () => {
-                part3.dispose();
-                showPart4();
+    S.update();
+
+    let catTimeout = timeout(catData.time, () => {
+        zog("Timer finished, removing cat and timer");
+
+        catPic.removeFrom(spots);
+        catTimer.removeFrom(spots);
+
+        catData.pic.push(catPic);
+        activeCats = activeCats.filter(cat => cat !== catPic);
+
+        timeout(rand(1, 3), () => generateRandomCat(color, spots));
+        S.update();
+    });
+
+
+    function updateTimer() {
+        if (catTimer.time <= 3) {
+            catTimer.backgroundColor = "red";
+        } else if (catTimer.time <= 7) {
+            catTimer.backgroundColor = "orange";
+        } else {
+            catTimer.backgroundColor = white;
+        }
+    }
+
+    Ticker.add(updateTimer, 1);
+}
+
+
+function generateCatData(color) {
+    let catProperties = {
+        pic: [],
+        accepting: [],
+        time: 0
+    };
+
+    switch (color) {
+        case "black":
+            catProperties = {
+                pic: ["blackcat.png", "blackcat.png", "blackcat.png", "blackcat.png"],
+                accepting: ["milk", "brush", "food"],
+                time: 25
+            };
+            break;
+        case "orange":
+            catProperties = {
+                pic: ["orangecat.png", "orangecat.png", "orangecat.png", "orangecat.png"],
+                accepting: ["food", "milk", "catnip"],
+                time: 22
+            };
+            break;
+        case "white":
+            catProperties = {
+                pic: ["whitecat.png", "whitecat.png", "whitecat.png", "whitecat.png"],
+                accepting: ["catnip", "milk", "toy"],
+                time: 20
+            };
+            break;
+        case "tux":
+            catProperties = {
+                pic: ["tuxcat.png", "tuxcat.png", "tuxcat.png", "tuxcat.png"],
+                accepting: ["brush", "catnip", "food"],
+                time: 15
+            };
+            break;
+        default:
+    }
+
+    return catProperties;
+}
+
+function generateCatPicture(pics, spots) {
+    let catPic = new Pic(pluck(pics, true)).addTo(spots).scaleTo(spots);
+    return catPic;
+}
+});   
+   
+
+    //ITEMS TO CAT---------------------------------------------------------------------
+
+        const item1 = new Container(100, 100).loc(103, 578);
+        const item2 = new Container(100, 100).loc(306, 608);
+        const item3 = new Container(100, 100).loc(797, 624);
+        const item4 = new Container(100, 100).loc(462, 606);
+        const item5 = new Container(100, 100).loc(662, 602);
+
+        let item;
+
+        loop(30, () => {
+            let milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
+            milk.name="milk";
+            let food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
+            food.name="food";
+            let brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
+            brush.name="brush";
+            let catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
+            catnip.name="catnip";
+            let toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
+            toy.name="toy";
+            S.update();
+
+            // [milk, food, brush].forEach(item => {
+                loop([milk, food, brush,catnip,toy],item=>{
+                item.startX = item.x;
+                item.startY = item.y;
+                item.on("pressup", () => checkItem(item));
+                S.update();
             });
         });
 
-    });
-}
+        function checkItem(item,i) {
+            zog("checkItem is on")
+        // cats.forEach(cat => {    
+        // loop(cats,(cat) =>{
+            activeCats.forEach(activeCat => {
+            if (item.hitTestBounds(activeCat.pic)) {
+                zog("Hit Detected with", activeCat.data.accepting);
 
-// function showPart4() {
-//     let part4 = new Container(W, H).center();
-//     let backgroundImage = new Pic("background.png").sca(0.85).center().addTo(part4).alp(0);
+                if (activeCat.data.accepting.includes(item.name)) {
+                
+                item.dispose();
+                zog(item.name);
+                
+                activeCat.data.accepting = activeCat.data.accepting.filter(i => i !== item.name);
+                zog(activeCat.data.accepting);
 
-//     // Continue with additional elements and buttons for Part 4 as needed
+                if (activeCat.data.accepting.length === 0) {
+                    animateCatOffScreen(activeCat.pic);
+                    score.score++;
+                    finalScore = score.score;
+                    zog(finalScore);
+                    zog(score.score);
+                }    
+                S.update();  
+            }else{
+                item.animate({ x: item.startX, y: item.startY }, 0.3);
+            } 
+            }else {            
+                item.animate({ x: item.startX, y: item.startY }, 0.3);
+            }
+            });
+        S.update();
+    }
 
-//     // For example, if there's a button to go to the next part:
-//     let nextButton = new Button({
-//         width: 120,
-//         height: 60,
-//         label: "next",
-//         backgroundColor: "#A44B43",
-//     })
-//         .pos(100, 100, RIGHT, BOTTOM)
-//         .addTo(part4);
+        function animateCatOffScreen(cat) {
+            cat.animate({
+                props:[
+                    {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
+                    {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
+                    {props:{x:-500, y:50}, time: 5, ease:"backInOut"}
+                ]
+            })
+        };
 
-//     nextButton.on("click", () => {
-//         part4.animate({ alpha: 0 }, 1, null, () => {
-//             part4.dispose();
-//             // Continue with the next part or perform other actions
-//         });
-//     });
-
-//     part4.animate({ alpha: 1 }, 1, null, () => {
-//         // Ensure alpha is set to 1 after animation starts
-//         backgroundImage.alp(1);
-//     });
-// }
-
-S.update();
-
-
-// //BACKGROUND ELEMENTS-------------------------------------------------------------
-// let timer;
-// let finalScore;
-// // part4();
-// function part4 () {
-//     zog("4");
-//     title.removeFrom();
-//     titleanimate.removeFrom()
-//     rules.removeFrom();
-//     rules2.removeFrom();
-
-//     S.update();
-//     //remove all previous containers
-
-//     const background = new Pic("background.png").sca(.85).center();
-//     S.update();
-
-//     let score = new Scorer({
-//         font:"BabyDoll.ttf",
-//         backgroundColor:orange,
-//         borderColor: black,
-//         borderWidth:3,
-//         width:60
-//     }).pos(50,50,RIGHT);
-
-//     timer = new Timer({
-//         // time:5,
-//         startPaused:true,
-//         font:"BabyDoll.ttf",
-//         backgroundColor:yellow,
-//         borderColor: black,
-//         borderWidth:3,
-//         width:60
-//     }).pos(50,50);
-
-//     S.on("stagemousedown", ()=>{              
-//         timer.start();    
-//     }, null, true);
-
-//     S.update();
-
-// //AUDIO---------------------------------------------------------------------------
-
-//     const flip = new Aud({
-//         file:"flip.mp3",
-//         volume:.1,
-//         interrupt:"none",
-//         maxNum:1
-//     });
-
-//     const close = new Aud({
-//         file:"close.mp3",
-//         volume:.1,
-//         interrupt:"none",
-//         maxNum:1
-//     });
-
-//     const pickup = new Aud({
-//         file:"pickup.mp3",
-//         volume:.1,
-//         interrupt:"none",
-//         maxNum:1
-//     });
-
-//     const meow = new Aud({
-//         file:"meow.mp3",
-//         volume:.1,
-//         interrupt:"none",
-//         maxNum:1
-//     });
-
-//     const angry = new Aud({
-//         file:"angry.mp3",
-//         volume:.1,
-//         interrupt:"none",
-//         maxNum:1
-//     });
-
-// //CATBIBLE------------------------------------------------------------------------
-//     let closeBook;
-
-//     const page1 = new Page({color: "#EFE2CF"});
-//     page1.content = new Pic("0.png").addTo(page1).pos(-10,0,CENTER,LEFT,page1);
-
-//     const page2 = new Page({color: "#EFE2CF"});
-//     page2.content = new Pic("1.png").addTo(page2).pos(340,0,CENTER,RIGHT, page1);
-
-//     const page3 = new Page({color: "#EFE2CF"});
-//     page3.content = new Pic("2.png").addTo(page3).pos(-10,0,CENTER,LEFT,page3);
-
-//     const page4 = new Page({color: "#EFE2CF"});
-//     page4.content = new Pic("3.png").addTo(page4).pos(340,0,CENTER,RIGHT, page3);
-
-//     const page5 = new Page({color: "#EFE2CF"});
-//     page5.content = new Pic("4.png").addTo(page5).pos(-10,0,CENTER,LEFT,page5);
-
-//     const page6 = new Page({color: "#EFE2CF"});
-//     page6.content = new Pic("5.png").addTo(page6).pos(340,0,CENTER,RIGHT, page5);
-
-//     const pages = [page1, page2, page3, page4, page5];
-
-//     const book = new Book(700, 500, pages)
-
-//     const bookCont = new Container(70,70).pos(150,50,RIGHT, TOP);
-//     const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1)   
-//         .tap(()=>{
-//             flip.play();
-//             book.center().addTo(S);
-//             closeBook = new Button(40,38,"x",red).pos(170,145, RIGHT, TOP);
-//             closeBook.tap(()=>{
-//                 if (S.contains(book)) {
-//                     close.play()
-//                     book.removeFrom(S);
-//                     closeBook.removeFrom()
-//                 }
-//             });
-//         });
-
-// //CATS INITIALIZATION------------------------------------------------------------------
-// let cats = [
-//     { pic: [new Pic("blackcat.png"),new Pic("blackcat.png"),new Pic("blackcat.png"),new Pic("blackcat.png")], accepting:["milk", "brush", "food"], time:15},
-//     { pic: [new Pic("orangecat.png"), new Pic("orangecat.png"),new Pic("orangecat.png"),new Pic("orangecat.png")],accepting: ["food", "milk", "catnip"], time:15},
-//     { pic: [new Pic("whitecat.png"),new Pic("whitecat.png"),new Pic("whitecat.png"),new Pic("whitecat.png")], accepting: ["catnip", "milk", "toy"], time:12},
-//     { pic: [new Pic("tuxcat.png"),new Pic("tuxcat.png"),new Pic("tuxcat.png"),new Pic("tuxcat.png")], accepting: ["brush", "catnip", "food"], time:10}
-//     ];
-
-
-// //ADD RANDOM CATS-----------------------------------------------------------------------------
-//     let spotA = new Container(150, 150).loc(300,310).outline().reg(CENTER);
-//     let spotB = new Container(150, 150).loc(70,390).outline().reg(CENTER);
-//     let spotC = new Container(150, 150).loc(500,320).outline().reg(CENTER);
-//     let spotD = new Container(150, 150).loc(870,220).outline().reg(CENTER);
-
-//     let activeCats = [];
-
-//     function placeRandomCat(spots) {
-
-//     let randomCatData = pluck(cats);
-//     let randomCatPic = pluck(randomCatData.pic,true);
-
-//     randomCatPic.addTo(spots).scaleTo(spots);
-//     activeCats.push({ pic: randomCatPic, data: randomCatData });
-//     // zog(activeCats);
-
-//     S.update();
-
-//     let randomCatTimer = new Timer({
-//         time: randomCatData.time,
-//         font:"BabyDoll.ttf",
-//         backgroundColor:white,
-//         borderColor: black,
-//         borderWidth:3,
-//         width:60
-//     }).center();
-
-//     randomCatTimer.addTo(spots);
-//     randomCatTimer.pos(randomCatPic.x, randomCatPic.y + randomCatPic.height); 
-//     zog("Timer set for: " + randomCatData.time + " seconds");
-    
-//     S.update();
-
-//     function updateTimer() {
-//             if (randomCatTimer.time <= 3) {
-//                 randomCatTimer.backgroundColor = "red";
-//             } else if (randomCatTimer.time <= 7) {
-//                 randomCatTimer.backgroundColor = "orange";
-//             } else {
-//                 randomCatTimer.backgroundColor = white;
-//             }
-            
-//         }
-
-//     Ticker.add(updateTimer, 1);
-
-//     let catTimers = timeout(randomCatData.time,() => {
-//         zog("Timer finished, removing cat and timer");
-
-//         randomCatPic.removeFrom(spots);
-//         randomCatTimer.removeFrom(spots);
-
-//         randomCatData.pic.push(randomCatPic);
-//         activeCats = activeCats.filter(cat => cat !== randomCatPic);
-//         // zog(randomCatData.pic.length);
+    //CAT REACTIONS--------------------------------------------------------------------
         
-//         timeout(rand(1,3),() => placeRandomCat(spots));
-//         S.update();
 
-//     }); 
+        //HAPPY CAT
+        function animateCatOffScreen(cat) {
+            if (!cat.animated) {
+                cat.animated = true; 
+            meow.play();
+            cat.animate([
+                    { props: { y: cat.y - 20 }, time: 0.5, ease: "bounceIn" },
+                    { props: { y: cat.y + 20 }, time: 0.7, ease: "bounceOut" },
+                    { props: { x: -800, y: 50 }, time: 5, ease: "backOut" }
+                ], null, () => {
+                    // Animation completed, remove the cat
+                    cat.removeFrom();
 
-// }
+                    // Add a new cat after removing the current one
+                    S.update();
+                });
 
-// placeRandomCat(spotA);
-// placeRandomCat(spotB);
-// placeRandomCat(spotC);
-// placeRandomCat(spotD);
-
-// //ITEMS TO CAT---------------------------------------------------------------------
-
-//     const item1 = new Container(100, 100).loc(103, 578);
-//     const item2 = new Container(100, 100).loc(306, 608);
-//     const item3 = new Container(100, 100).loc(797, 624);
-//     const item4 = new Container(100, 100).loc(462, 606);
-//     const item5 = new Container(100, 100).loc(662, 602);
-
-//     let item;
-
-//     loop(30, () => {
-//         let milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
-//         milk.name="milk";
-//         let food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
-//         food.name="food";
-//         let brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
-//         brush.name="brush";
-//         let catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
-//         catnip.name="catnip";
-//         let toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
-//         toy.name="toy";
-//         S.update();
-
-//         // [milk, food, brush].forEach(item => {
-//             loop([milk, food, brush,catnip,toy],item=>{
-//             item.startX = item.x;
-//             item.startY = item.y;
-//             item.on("pressup", () => checkItem(item));
-//             S.update();
-//         });
-//     });
-
-//     function checkItem(item,i) {
-//         zog("checkItem is on")
-//     // cats.forEach(cat => {    
-//     // loop(cats,(cat) =>{
-//         activeCats.forEach(activeCat => {
-//         if (item.hitTestBounds(activeCat.pic)) {
-//             zog("Hit Detected with", activeCat.data.accepting);
-
-//             if (activeCat.data.accepting.includes(item.name)) {
-            
-//             item.dispose();
-//             zog(item.name);
-            
-//             activeCat.data.accepting = activeCat.data.accepting.filter(i => i !== item.name);
-//             zog(activeCat.data.accepting);
-
-//             if (activeCat.data.accepting.length === 0) {
-//                 animateCatOffScreen(activeCat.pic);
-//                 score.score++;
-//                 finalScore = score.score;
-//                 zog(finalScore);
-//                 zog(score.score);
-//             }    
-//             S.update();  
-//         }else{
-//             item.animate({ x: item.startX, y: item.startY }, 0.3);
-//         } 
-//         }else {            
-//             item.animate({ x: item.startX, y: item.startY }, 0.3);
-//         }
-//         });
-//     S.update();
-// }
-
-//     function animateCatOffScreen(cat) {
-//         cat.animate({
-//             props:[
-//                 {props:{y:cat.y-20},time:.5, ease: "bounceIn"},
-//                 {props:{y:cat.y+20},time:.7, ease: "bounceOut"},
-//                 {props:{x:-500, y:50}, time: 5, ease:"backInOut"}
-//             ]
-//         })
-//     };
-
-// //CAT REACTIONS--------------------------------------------------------------------
-    
-
-//     //HAPPY CAT
-//     function animateCatOffScreen(cat) {
-//         if (!cat.animated) {
-//             cat.animated = true; 
-//         meow.play();
-//         cat.animate([
-//                 { props: { y: cat.y - 20 }, time: 0.5, ease: "bounceIn" },
-//                 { props: { y: cat.y + 20 }, time: 0.7, ease: "bounceOut" },
-//                 { props: { x: -800, y: 50 }, time: 5, ease: "backOut" }
-//             ], null, () => {
-//                 // Animation completed, remove the cat
-//                 cat.removeFrom();
-
-//                 // Add a new cat after removing the current one
-//                 S.update();
-//             });
-
-            
-//         };
-//     };
+                
+            };
+        };
 
 
-    // S.update();
+        S.update();
 
-    // timer.on("complete", () => {
-    // zog(finalScore);
-    // const savedFinalScore = finalScore; 
-    // setTimeout(() => {
-    // S.removeAllChildren();
-    // S.update();
-    // displayWinningComment(savedFinalScore);
-    // winningPage(savedFinalScore);
-    // }, 2); 
-    // });
+        timer.on("complete", () => {
+        zog(finalScore);
+        const savedFinalScore = finalScore; 
+        setTimeout(() => {
+        S.removeAllChildren();
+        S.update();
+        displayWinningComment(savedFinalScore);
+        winningPage(savedFinalScore);
+        }, 2); 
+        });
 
-//     const winningComments = {
-//         0: "Looks like you've got a bit of a 'cat-astrophe' on your hands! Remember, practice makes 'purr-fect'!",
-//         1: "You're just starting to 'paw' your way to success! Keep going and you'll be the cat's meow in no time!",
-//         6: "You're getting your 'claws' into it! Keep up the good work and you'll be a 'purr'-fessional soon!",
-//         11: "Look at you, a 'whisker' away from being a top cat carer! Keep those treats coming!",
-//         16: "You're the cat's 'whiskers'! Just a little more and you'll be the ultimate cat companion!",
-//         21: "You're the 'purr-fect' cat caretaker! All the kitties are 'feline' good thanks to your expert care!",
-//         26: "You're a legendary cat whisperer! Even the most finicky felines find you 'paw-some'!"
-//     };
+    const winningComments = {
+        0: "Looks like you've got a bit of a 'cat-astrophe' on your hands! Remember, practice makes 'purr-fect'!",
+        1: "You're just starting to 'paw' your way to success! Keep going and you'll be the cat's meow in no time!",
+        6: "You're getting your 'claws' into it! Keep up the good work and you'll be a 'purr'-fessional soon!",
+        11: "Look at you, a 'whisker' away from being a top cat carer! Keep those treats coming!",
+        16: "You're the cat's 'whiskers'! Just a little more and you'll be the ultimate cat companion!",
+        21: "You're the 'purr-fect' cat caretaker! All the kitties are 'feline' good thanks to your expert care!",
+        26: "You're a legendary cat whisperer! Even the most finicky felines find you 'paw-some'!"
+    };
 
-// let comment = "";
+    let comment = "";
 
-// function displayWinningComment(score) {
-    
-//     if (score === 0) {
-//         comment = winningComments[0];
-//     } else if (score >= 1 && score <= 5) {
-//         comment = winningComments[1];
-//     } else if (score >= 6 && score <= 10) {
-//         comment = winningComments[6];
-//     } else if (score >= 11 && score <= 15) {
-//         comment = winningComments[11];
-//     } else if (score >= 16 && score <= 20) {
-//         comment = winningComments[16];
-//     } else if (score >= 21 && score <= 25) {
-//         comment = winningComments[21];
-//     } else if (score > 25) {
-//         comment = winningComments[26];
-//     }
-//     zog(comment);
-// }
+    function displayWinningComment(score) {
+        
+        if (score === 0) {
+            comment = winningComments[0];
+        } else if (score >= 1 && score <= 5) {
+            comment = winningComments[1];
+        } else if (score >= 6 && score <= 10) {
+            comment = winningComments[6];
+        } else if (score >= 11 && score <= 15) {
+            comment = winningComments[11];
+        } else if (score >= 16 && score <= 20) {
+            comment = winningComments[16];
+        } else if (score >= 21 && score <= 25) {
+            comment = winningComments[21];
+        } else if (score > 25) {
+            comment = winningComments[26];
+        }
+        zog(comment);
+    }
 
 
-//     function winningPage(score){
+        function winningPage(score){
 
-//     const winning = new Pic("winning.png").center().alp(0).animate({alpha: 1}, 1);
+        const winning = new Pic("winning.png").center().alp(0).animate({alpha: 1}, 1);
 
-//     const finalScore = new Label({
-//         text:"Your final score is",
-//         size:60,
-//         font:"BabyDoll.ttf",
-//     }).centerReg().pos(0,180,CENTER,TOP).alp(0).sca(0).animate({scale:1,alpha:1}, 1.7, "elasticOut",null,null,1);
+        const finalScore = new Label({
+            text:"Your final score is",
+            size:60,
+            font:"BabyDoll.ttf",
+        }).centerReg().pos(0,180,CENTER,TOP).alp(0).sca(0).animate({scale:1,alpha:1}, 1.7, "elasticOut",null,null,1);
 
-//     const scoreText = new Label({
-//         text:score,
-//         size:72,
-//         backgroundColor:orange,
-//         corner:10,
-//         font:"BabyDoll.ttf",
-//     }).centerReg().pos(0,280,CENTER,TOP).alp(0).sca(0).animate({scale:1,alpha:1}, 1.7, "elasticOut",null,null,2);
+        const scoreText = new Label({
+            text:score,
+            size:72,
+            backgroundColor:orange,
+            corner:10,
+            font:"BabyDoll.ttf",
+        }).centerReg().pos(0,280,CENTER,TOP).alp(0).sca(0).animate({scale:1,alpha:1}, 1.7, "elasticOut",null,null,2);
 
-//     const commentWords = new Label({
-//         text:comment,
-//         shadowColor:white,
-//         labelWidth:800,
-//         labelHeight:180,
-//         align:CENTER,
-//         valign:MIDDLE,
-//         font:"BabyDoll.ttf",
-//         splitWords:true
-//     }).pos(0,180,CENTER,BOTTOM).alp(0).animate({alpha: 1}, 1,null,null,null,3);
+        const commentWords = new Label({
+            text:comment,
+            shadowColor:white,
+            labelWidth:800,
+            labelHeight:180,
+            align:CENTER,
+            valign:MIDDLE,
+            font:"BabyDoll.ttf",
+            splitWords:true
+        }).pos(0,180,CENTER,BOTTOM).alp(0).animate({alpha: 1}, 1,null,null,null,3);
 
-//     const restart = new Button({
-//         font:"BabyDoll.ttf",
-//         width:240, 
-//         height:60,
-//         label: "PLAY AGAIN",
-//         backgroundColor:"#A44B43",
-//     }).pos(0, 50, CENTER, BOTTOM, title).alp(0).animate({alpha: 1}, 1,null,null,null,4).hov().top();
+        const restart = new Button({
+            font:"BabyDoll.ttf",
+            width:240, 
+            height:60,
+            label: "PLAY AGAIN",
+            backgroundColor:"#A44B43",
+        }).pos(0, 50, CENTER, BOTTOM).alp(0).animate({alpha: 1}, 1).hov().top();
 
-//     restart.on("click",()=>{
-//         part1();
-//         winning.removeFrom();
-//         finalScore.removeFrom();
-//         scoreText.removeFrom();
-//         commentWords.removeFrom();
-//         restart.removeFrom();
-//         text.removeFrom();
-//         text2.removeFrom();
-//         S.update();
-//     });
-    
-//     STYLE = {
-//         font:"BabyDoll.ttf", 
-//         size:70, 
-//         color:yellow,
-//         bold:true,
-//         letterSpacing:8,
-//         lineSpacing:50,
-//         lineAlign:CENTER
-//     };
+        restart.on("click", () => {
+            showPart1();
+            winning.removeFrom();
+            finalScore.removeFrom();
+            scoreText.removeFrom();
+            commentWords.removeFrom();
+            restart.removeFrom();
+            text.removeFrom();
+            text2.removeFrom();
+            showPart2.removeFrom();
+            showPart3.removeFrom();
+            S.update();
+        });
+        
+        STYLE = {
+            font:"BabyDoll.ttf", 
+            size:70, 
+            color:yellow,
+            bold:true,
+            letterSpacing:8,
+            lineSpacing:50,
+            lineAlign:CENTER
+        };
 
-//     const text = new LabelLetters("meow")
-//         .centerReg()
-//         .pos(20,100,LEFT,TOP)
-//         .sca(0)
-//         .animate({scale:1}, 3, "elasticOut",null,null,4);
+        const text = new LabelLetters("meow")
+            .centerReg()
+            .pos(20,100,LEFT,TOP)
+            .sca(0)
+            .animate({scale:1}, 3, "elasticOut",null,null,4);
 
-//     const colors = series(red,blue,purple,green,pink);
+        const colors = series(red,blue,purple,green,pink);
 
-//     text.loop(letter=>{
-//         letter.sha(colors().toAlpha(.5),8,8,0).wiggle("rotation",0,5,10,.2,.4);
-//     });
+        text.loop(letter=>{
+            letter.sha(colors().toAlpha(.5),8,8,0).wiggle("rotation",0,5,10,.2,.4);
+        });
 
-//     const text2 = new LabelLetters("purr")
-//         .centerReg()
-//         .pos(20,120,RIGHT,BOTTOM)
-//         .sca(0)
-//         .animate({scale:1}, 3, "elasticOut",null,null,4); 
+        const text2 = new LabelLetters("purr")
+            .centerReg()
+            .pos(20,120,RIGHT,BOTTOM)
+            .sca(0)
+            .animate({scale:1}, 3, "elasticOut",null,null,4); 
 
-//     text2.loop(letter=>{
-//         letter.sha(colors().toAlpha(.5),8,8,0).wiggle("rotation",0,5,10,.2,.4);
-//     });
+        text2.loop(letter=>{
+            letter.sha(colors().toAlpha(.5),8,8,0).wiggle("rotation",0,5,10,.2,.4);
+        });
 
-//     STYLE = {};
-//     }
-    
-// };//end part4
+        STYLE = {};
+        }
+        
+    };//end part4
 
 
 }//end ready
