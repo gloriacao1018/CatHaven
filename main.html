@@ -8,6 +8,7 @@
     <!-- zimjs.com - JavaScript Canvas Framework -->
     <script type=module>
 
+
 import zim from "https://zimjs.com/cdn/015/zim_game";
 
 const assets = ["BabyDoll.ttf", "blackcat.png", "orangecat.png", "whitecat.png","tuxcat.png","milkdemo.png", "0.png","1.png", "2.png","3.png", "4.png", "5.png", "winning.png"];
@@ -104,6 +105,7 @@ title.removeFrom();
 titleanimate.removeFrom()
 rules.removeFrom();
 rules2.removeFrom();
+let finalScore;
 
 S.update();
 //remove all previous containers
@@ -124,14 +126,12 @@ const timer = new Timer({
     borderColor: black,
     borderWidth:3,
     width:60}).pos(50,50);
-
     background.on("mousedown", ()=>{              
     timer.start();    
     }, null, true); 
 
 S.update();
 //AUDIO---------------------------------------------------------------------------
-
 
 const flip = new Aud({
         file:"flip.mp3",
@@ -167,6 +167,8 @@ const angry = new Aud({
         interrupt:"none",
         maxNum:1
 });
+
+
 //CATBIBLE------------------------------------------------------------------------
 let closeBook;
 
@@ -216,125 +218,43 @@ const catbible = new Pic("catbible.png").addTo(bookCont).scaleTo(bookCont).hov(1
 
 
 //CAT TIMER-----------------------------------------------------------------------------
+STYLE = {
+   type:{Timer:{font:"BabyDoll.ttf",backgroundColor:white,borderColor: black,borderWidth:3,width:60},}
+   }
 
-    let blackTimer = new Timer({
-        time: 15,
-        font:"BabyDoll.ttf",
-        backgroundColor:white,
-        borderColor: black,
-        borderWidth:3,
-        width:60}).addTo(blackcat).pos(130,15);
+    // let blackTimer = new Timer({
+    //     time: 15,
+    //     font:"BabyDoll.ttf",
+    //     backgroundColor:white,
+    //     borderColor: black,
+    //     borderWidth:3,
+    //     width:60}).addTo(blackcat).pos(130,15);
 
-    let orangeTimer = new Timer({
-        time: 15,
-        font:"BabyDoll.ttf",
-        backgroundColor:white,
-        borderColor: black,
-        borderWidth:3,
-        width:60}).addTo(orangecat).pos(135,-10);
+    // let orangeTimer = new Timer({
+    //     time: 15,
+    //     font:"BabyDoll.ttf",
+    //     backgroundColor:white,
+    //     borderColor: black,
+    //     borderWidth:3,
+    //     width:60}).addTo(orangecat).pos(135,-10);
 
-    let whiteTimer = new Timer({
-        time: 12,
-        font:"BabyDoll.ttf",
-        backgroundColor:white,
-        borderColor: black,
-        borderWidth:3,
-        width:60}).addTo(whitecat).pos(135,10);
+    // let whiteTimer = new Timer({
+    //     time: 12,
+    //     font:"BabyDoll.ttf",
+    //     backgroundColor:white,
+    //     borderColor: black,
+    //     borderWidth:3,
+    //     width:60}).addTo(whitecat).pos(135,10);
 
-    let tuxTimer = new Timer({
-        time: 10,
-        font:"BabyDoll.ttf",
-        backgroundColor:white,
-        borderColor: black,
-        borderWidth:3,
-        width:60}).addTo(tuxcat).pos(135,5);
+    // let tuxTimer = new Timer({
+    //     time: 10,
+    //     font:"BabyDoll.ttf",
+    //     backgroundColor:white,
+    //     borderColor: black,
+    //     borderWidth:3,
+    //     width:60}).addTo(tuxcat).pos(135,5);
 
-        let catTimers = [blackTimer, orangeTimer, whiteTimer,tuxTimer];
-
-
-//LOOP RAND CATS-----------------------------------------------------------------------------
-let timerInterval;
-
-function startGame() {
-    timerInterval = setInterval(function () {
-        addRandomCat();
-
-        if (timer <= 0) {
-            clearInterval(timerInterval);
-            zog("Game over!");
-        }
-    }, 1); // Adjust the interval based on your requirements
-}
-//ADD RANDOM CATS-----------------------------------------------------------------------------
-    let spotA = new Container(150, 150).loc(300,310).outline().reg(CENTER);
-    let spotB = new Container(150, 150).loc(70,390).outline().reg(CENTER);
-    let spotC = new Container(150, 150).loc(500,320).outline().reg(CENTER);
-    let spotD = new Container(150, 150).loc(870,220).outline().reg(CENTER);
-    
-    let spots = [spotA, spotB, spotC, spotD];
-
-    let initialItems = [
-        ["milk", "brush", "food"],
-        ["food", "milk", "catnip"],
-        ["catnip", "milk", "toy"],
-        ["brush", "catnip", "food"]
-    ];
-
-    let cats = [
-    { cat: blackcat, satisfaction: 0, accepting: [...initialItems[0]], spot: null , catTimers:blackTimer },
-    { cat: orangecat, satisfaction: 0, accepting: [...initialItems[1]], spot: null , catTimers:orangeTimer},
-    { cat: whitecat, satisfaction: 0, accepting: [...initialItems[2]], spot: null , catTimers:whiteTimer},
-    { cat: tuxcat, satisfaction: 0, accepting: [...initialItems[3]], spot: null ,catTimers:tuxTimer }
-    ];
-
-function addRandomCat() {
-
-        // After adding a cat, set a timeout to add another cat after a random delay
-        let delay = Math.random() * 4000 + 1000; // Random delay between 1-5 seconds
-        setTimeout(addRandomCat, delay);
-    }
-
-    // Start adding cats 2 seconds after the game starts
-    setInterval(addRandomCat, 2000);
-
-    function getRandomSpot() {
-    let availableSpots = spots.filter(spot => !spot.occupied);
-    if (availableSpots.length === 0) {
-        return null; 
-    }
-        let randomIndex = Math.floor(Math.random() * availableSpots.length);
-        return availableSpots[randomIndex];
-    }
-
-    function getRandomCat() {
-        let randomIndex = Math.floor(Math.random() * cats.length);
-        return cats[randomIndex];
-    }
-    function addRandomCat() {
-    let randomSpot = getRandomSpot();
-    if (!randomSpot) {
-        return; // No available spot, so don't add a new cat
-    }
-    randomSpot.occupied = true;
-    let randomCat = getRandomCat();
-    randomCat.spot = randomSpot; 
-    let spotCenterX = randomSpot.x + randomSpot.width / 2;
-    let spotCenterY = randomSpot.y + randomSpot.height / 2;
-    let catCenterX = spotCenterX - randomCat.cat.width / 2;
-    let catCenterY = spotCenterY - randomCat.cat.height / 2;
-    randomCat.cat.x = catCenterX;
-    randomCat.cat.y = catCenterY;
-    randomCat.cat.addTo();
-    randomCat.cat.on("satisfied", () => {
-        if (randomCat.satisfaction >= 3) {
-            zog(`Removing ${randomCat.cat} because satisfaction is ${randomCat.satisfaction}`);
-            randomCat.cat.removeFrom();
-            randomSpot.occupied = false;
-        }
-    });
-    };//end random cat
-
-    startGame();
+    //     let catTimers = [blackTimer, orangeTimer, whiteTimer,tuxTimer];
 
 //ITEMS TO CAT---------------------------------------------------------------------
 
@@ -352,17 +272,12 @@ function addRandomCat() {
 
     loop(30, () => {
         milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag().top();
-        milk.name = "milk";
         food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag().top();
-        food.name = "food";
         brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag().top();
-        brush.name = "brush";
         catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag().top();
-        catnip.name = "catnip";
         toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag().top();
-        toy.name = "toy";
 
-        [milk, food, brush,catnip,toy].forEach(item => {
+        [milk, food, brush, catnip, toy].forEach(item => {
             item.startScale = { scaleX: item.scaleX, scaleY: item.scaleY }; 
             item.startPos = { x: item.x, y: item.y }; 
             item.on("pressup", () => checkItem(item));
@@ -370,14 +285,13 @@ function addRandomCat() {
         });
     });
             
-    let finalScore;
 
     function checkItem(item) {
         cats.forEach((catInfo, index) => {
             if (item.hitTestBounds(catInfo.cat)) {
-                if (item.name && typeof item.name === 'string' && catInfo.accepting.includes(item.name)) {
+                if (item && typeof item === 'string' && catInfo.accepting.includes(item)) {
                     // Remove the item from the accepting array
-                    catInfo.accepting = catInfo.accepting.filter(i => i !== item.name);
+                    catInfo.accepting = catInfo.accepting.filter(i => i !== item);
 
                     // Increase satisfaction
                     catInfo.satisfaction++;
@@ -414,6 +328,60 @@ setInterval(() => {
     });
 }, 5); 
 
+//ADD RANDOM CATS-----------------------------------------------------------------------------
+
+let spotA = new Container(150, 150).loc(300,310).outline().reg(CENTER);
+let spotB = new Container(150, 150).loc(70,390).outline().reg(CENTER);
+let spotC = new Container(150, 150).loc(500,320).outline().reg(CENTER);
+let spotD = new Container(150, 150).loc(870,220).outline().reg(CENTER);
+let spots = [spotA, spotB, spotC, spotD];
+
+let spotCounters = { spotA: 0, spotB: 0, spotC: 0, spotD: 0 };
+
+    let cats = [
+    {cat:new Pic("blackcat.png"), satisfaction: 0, accepting: [milk, brush, food], spot: null , timer: new Timer({time:15}) },
+    {cat:new Pic("orangecat.png"), satisfaction: 0, accepting: [food, milk, catnip], spot: null , timer: new Timer({time:15})},
+    {cat:new Pic("whitecat.png"), satisfaction: 0, accepting: [catnip, milk, toy], spot: null , timer: new Timer({time:15})},
+    {cat:new Pic("tuxcat.png"), satisfaction: 0, accepting: [brush, catnip, food], spot: null ,timer: new Timer({time:15}) }
+    ];
+
+
+    function createCatInSpot(spot, cat) {
+    let spotKey = spot.name; // Assuming each spot has a unique 'name' property
+    if (spotCounters[spotKey] < 1) {
+        cat.addTo(spot); // Assuming 'cat' is a Pic or similar object
+        // Position the cat in the center of the spot (adjust as needed)
+        spotCounters[spotKey] = 1;
+
+        cat.on("tick", () => {
+            // Check if the cat goes out of bounds or other conditions to remove the cat
+            cat.removeFrom(spot);
+            spotCounters[spotKey] = 0;
+            // Optionally, schedule to add a new cat to this spot
+            setTimeout(() => createCatInSpot(spot, getRandomCat(cats)), randomInterval());
+        });
+    }
+}
+
+function startCreatingCats() {
+    let minInterval = 10000; // Minimum interval in milliseconds
+    let maxInterval = 15000; // Maximum interval in milliseconds
+
+    function randomInterval() {
+        return Math.random() * (maxInterval - minInterval) + minInterval;
+    }
+
+    spots.forEach(spot => {
+        setTimeout(() => createCatInSpot(spot, getRandomCat(cats)), randomInterval());
+    });
+}
+
+function getRandomCat(catsArray) {
+    return catsArray[Math.floor(Math.random() * catsArray.length)].cat;
+}
+
+startCreatingCats();
+
 //CAT REACTIONS--------------------------------------------------------------------
 function updateTimer() {
     for (let i = 0; i < catTimers.length; i++) {
@@ -426,8 +394,14 @@ function updateTimer() {
             timer.backgroundColor = white;
         }
         if (timer.time <= 0) {
-            animateCatMad(cats[i].cat);
-            timer.dispose();
+            const currentCat = cats[i];
+            animateCatMad(currentCat.cat, () => {
+                if (currentCat.spot) {
+                    currentCat.spot.removeAllChildren();
+                    currentCat.spot.occupied = false; // Update spot status
+                }
+                timer.dispose();
+            });
         }
     }
 }
@@ -476,7 +450,14 @@ function animateCatMad(cat) {
             time: 5, 
             ease:"backOut",
         })
-    }
+    }        cat.on("animationend", () => {
+            // Check if the cat still exists (it might have been removed manually)
+            if (cat.stage) {
+                cat.removeFrom(); // Remove the cat from the scene
+                addRandomCat(); // Add a new cat
+                S.update();
+            };
+        });
 }
 
 
