@@ -255,18 +255,22 @@ function placeRandomCat(spot) {
     ];
 
     if (spot.children.length === 0) {
-        let randomCatData = pluck(cats);
+        let originalCatData = pluck(cats);
+        let randomCatData = copy(originalCatData); // Ensure this creates a deep copy
+
+        // Initialize acceptance flags for this cat instance
+        randomCatData.itemAccepted = {}; // Adding a new object to track accepted items
+        originalCatData.accepting.forEach(item => randomCatData.itemAccepted[item] = false);
+
         let randomCatPic = new Pic(randomCatData.pic);
-        let randomCatTimer = new Timer({
-            ...STYLE.type.Timer, time: randomCatData.time
-        }).center();
+        let randomCatTimer = new Timer({...STYLE.type.Timer, time: randomCatData.time}).center();
 
         randomCatPic.addTo(spot).scaleTo(spot);
         randomCatTimer.addTo(spot);
         randomCatTimer.pos(randomCatPic.x + 60, randomCatPic.y + randomCatPic.height);
 
         activeCats.push({ pic: randomCatPic, data: randomCatData, spot: spot, timer: randomCatTimer });
-        activeTimers.push(randomCatTimer); // Add this timer to the list of active timers
+        activeTimers.push(randomCatTimer);
 
 
         setTimeout(() => {
@@ -282,6 +286,7 @@ function placeRandomCat(spot) {
                 setTimeout(() => {
                 // Remove the cat and timer after the animation
                 randomCatPic.removeFrom(spot);
+
                 // randomCatTimer.removeFrom(spot);
                 // activeTimers.splice(activeTimers.indexOf(randomCatTimer), 1); // Remove this timer from active timers
                 placeRandomCat(spot); // Place a new cat
@@ -316,50 +321,58 @@ spots.forEach(spot => placeRandomCat(spot));
 
     //ITEMS TO CAT---------------------------------------------------------------------
 
-    const item1 = new Container(100, 100).loc(103, 578);
+        const item1 = new Container(100, 100).loc(103, 578);
         const item2 = new Container(100, 100).loc(306, 608);
         const item3 = new Container(100, 100).loc(797, 624);
         const item4 = new Container(100, 100).loc(462, 606);
         const item5 = new Container(100, 100).loc(662, 602);
 
-        let item;
+        let milk, food, brush, catnip, toy;
 
-            let milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
-            milk.name="milk";
-            let food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
-            food.name="food";
-            let brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
-            brush.name="brush";
-            let catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
-            catnip.name="catnip";
-            let toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
-            toy.name="toy";
-            S.update();
+// Initialize the items within a loop
+loop(30, () => {
+    milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
+    milk.name = "milk";
+    food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
+    food.name = "food";
+    brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
+    brush.name = "brush";
+    catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
+    catnip.name = "catnip";
+    toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
+    toy.name = "toy";
+    S.update();
+});
 
-                loop([milk, food, brush,catnip,toy],item=>{
-                item.startX = item.x;
-                item.startY = item.y;
-                item.on("pressup", () => checkItem(item));
-                S.update();
-            });
+[milk, food, brush, catnip, toy].forEach(item => {
+    item.startX = item.x;
+    item.startY = item.y;
+    item.on("pressup", () => {
+        pickup.play();
+        activeCats.forEach(activeCat => {
+            checkItem(item, activeCat);
+        });
+    });
+    S.update();
+});
 
-        function checkItem(item,i) {
-            zog("checkItem is on")
-      
-            activeCats.forEach(activeCat => {
-            if (item.hitTestBounds(activeCat.pic)) {
-                zog("Hit Detected with", activeCat.data.accepting);
+function checkItem(item, activeCat) {
+    zog("checkItem is on");
 
-                if (activeCat.data.accepting.includes(item.name)) {
-                
-                item.dispose();
-                zog(item.name);
-                
-                activeCat.data.accepting = activeCat.data.accepting.filter(i => i !== item.name);
-                zog(activeCat.data.accepting);
+    if (item.hitTestBounds(activeCat.pic)) {
+        zog("Hit Detected with", activeCat.data.accepting);
+        let itemName = item.name;
 
-                if (activeCat.data.accepting.length === 0) {
-                    animateCatOffScreen(activeCat.pic);
+        if (activeCat.data.accepting.includes(itemName) && !activeCat.data.itemAccepted[itemName]) {
+            item.x = -1000;  // Off-screen position
+            item.visible = false;  // Make it invisible
+            zog(itemName);
+            activeCat.data.itemAccepted[itemName] = true;
+
+            let allItemsAccepted = activeCat.data.accepting.every(i => activeCat.data.itemAccepted[i]);
+            if (allItemsAccepted) {
+                animateCatOffScreen(activeCat.pic, () => {
+                    resetCatInteraction(activeCat);
 
                     if (activeCat.timer) {
                         activeCat.timer.removeFrom(activeCat.spot);
@@ -371,34 +384,82 @@ spots.forEach(spot => placeRandomCat(spot));
                     finalScore = score.score;
                     zog(finalScore);
                     zog(score.score);
-                }    
-                S.update();  
-            }else{
-                item.animate({ x: item.startX, y: item.startY }, 0.3);
-            } 
-            }else {            
-                item.animate({ x: item.startX, y: item.startY }, 0.3);
+                });
             }
-            });
-        S.update();
+        } else {
+            item.animate({ x: item.startX, y: item.startY }, 0.3);
+        }
+    } else {
+        item.animate({ x: item.startX, y: item.startY }, 0.3);
     }
+    S.update();
+}
+
+//HAPPY CAT
+function animateCatOffScreen(cat, callback) {
+    meow.play();
+    cat.animate({
+        props: [
+            { props: { y: cat.y - 10 }, time: .2, ease: "bounceIn" },
+            { props: { y: cat.y + 20 }, time: .3, ease: "bounceOut" },
+            { props: { x: -500, y: 50 }, time: 3, ease: "backInOut" }
+        ],
+        call: callback  // Trigger the callback after the animation completes
+    });
+}
+
+function resetCatInteraction(cat) {
+    cat.data.accepting.forEach(i => cat.data.itemAccepted[i] = false);
+    // Reset any other cat-specific states here
+}
+
+
+       
 
     //CAT REACTIONS--------------------------------------------------------------------
         
 
-        //HAPPY CAT
-        function animateCatOffScreen(cat) {
-            meow.play();
-            cat.animate({
-                props:[
-                    {props:{y:cat.y-20},time:.2, ease: "bounceIn"},
-                    {props:{y:cat.y+20},time:.3, ease: "bounceOut"},
-                    {props:{x:-500, y:50}, time: 3, ease:"backInOut"}
-                ]
-            })
-        };
+//       //HAPPY CAT
+//         function animateCatOffScreen(cat, callback) {
+//             meow.play();
+//             cat.animate({
+//                 props:[
+//                     {props:{y:cat.y-10},time:.2, ease: "bounceIn"},
+//                     {props:{y:cat.y+20},time:.3, ease: "bounceOut"},
+//                     {props:{x:-500, y:50}, time: 3, ease:"backInOut"}
+//                 ]
+//             })
+//             if (typeof callback === 'function') {
+//         callback();
+//     }
+// }
 
-        S.update();
+// function resetCatInteraction(cat) {
+//     // Reset the accepted flags for each item
+//     cat.data.accepting.forEach(i => cat.data.itemAccepted[i] = false);
+//     // Reset any other cat-specific states here
+// }
+
+// // In your checkItem function, after all items are accepted
+// if (allItemsAccepted) {
+//     animateCatOffScreen(activeCat.pic, () => {
+//         resetCatInteraction(activeCat);
+
+//         if (activeCat.timer) {
+//             activeCat.timer.removeFrom(activeCat.spot);
+//             activeTimers.splice(activeTimers.indexOf(activeCat.timer), 1);
+//         }
+
+//         activeCats.splice(activeCats.indexOf(activeCat), 1);
+
+//         score.score++;
+//         finalScore = score.score;
+//         zog(finalScore);
+//         zog(score.score);
+//     });
+// }
+
+//         S.update();
 
 
     //GAME END--------------------------------------------------------------------
