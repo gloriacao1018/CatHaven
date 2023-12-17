@@ -254,8 +254,10 @@ function placeRandomCat(spot) {
     { pic: "tuxcat.png", accepting: ["milk", "food", "brush"], time: 10 }
     ];
 
+
     if (spot.children.length === 0) {
-        let randomCatData = pluck(cats);
+        let randomDataCopy = copy(cats);
+        let randomCatData = pluck(randomDataCopy);
         let randomCatPic = new Pic(randomCatData.pic);
         let randomCatTimer = new Timer({
             ...STYLE.type.Timer, time: randomCatData.time
@@ -322,27 +324,34 @@ spots.forEach(spot => placeRandomCat(spot));
         const item4 = new Container(100, 100).loc(462, 606);
         const item5 = new Container(100, 100).loc(662, 602);
 
-        let item;
+        let milk, food, brush, catnip, toy;
 
-            let milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
-            milk.name="milk";
-            let food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
-            food.name="food";
-            let brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
-            brush.name="brush";
-            let catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
-            catnip.name="catnip";
-            let toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
-            toy.name="toy";
-            S.update();
+// Initialize the items within a loop
+loop(30, () => {
+    milk = new Pic("milkdemo.png").addTo(item1).scaleTo(item1).drag();
+    milk.name = "milk";
+    food = new Pic("fooddemo.png").addTo(item2).scaleTo(item2).drag();
+    food.name = "food";
+    brush = new Pic("brushdemo.png").addTo(item3).scaleTo(item3).drag();
+    brush.name = "brush";
+    catnip = new Pic("catnipdemo.png").addTo(item4).scaleTo(item4).drag();
+    catnip.name = "catnip";
+    toy = new Pic("toydemo.png").addTo(item5).scaleTo(item5).drag();
+    toy.name = "toy";
+    S.update();
+});
 
-                loop([milk, food, brush,catnip,toy],item=>{
-                item.startX = item.x;
-                item.startY = item.y;
-                item.on("pressup", () => checkItem(item));
-                S.update();
-            });
-
+[milk, food, brush, catnip, toy].forEach(item => {
+    item.startX = item.x;
+    item.startY = item.y;
+    item.on("pressup", () => {
+        pickup.play();
+        activeCats.forEach(activeCat => {
+            checkItem(item, activeCat);
+        });
+    });
+    S.update();
+});
         function checkItem(item,i) {
             zog("checkItem is on")
       
